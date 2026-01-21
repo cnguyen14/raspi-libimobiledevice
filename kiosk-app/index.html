@@ -32,56 +32,56 @@
     </header>
 
     <!-- Main Content -->
-    <main class="flex-1 p-5 overflow-hidden">
-      <div class="grid grid-cols-2 gap-4 h-full">
+    <main class="flex-1 p-5 overflow-hidden flex flex-col">
+      <div class="grid grid-cols-2 gap-4 flex-1 min-h-0">
         <!-- WiFi Settings Card -->
-        <a href="/wifi-settings.html" class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center gap-4 btn-touch group">
-          <div class="w-16 h-16 bg-cyan-500/10 rounded-xl flex items-center justify-center group-active:bg-cyan-500/20 transition-colors">
-            <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <a href="/wifi-settings.html" class="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-3 btn-touch group overflow-hidden">
+          <div class="w-14 h-14 bg-cyan-500/10 rounded-xl flex items-center justify-center group-active:bg-cyan-500/20 transition-colors flex-shrink-0">
+            <svg class="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
             </svg>
           </div>
-          <div class="text-center">
-            <h2 class="text-lg font-semibold text-slate-100 mb-1">WiFi Settings</h2>
+          <div class="text-center flex-shrink-0">
+            <h2 class="text-base font-semibold text-slate-100 mb-0.5">WiFi Settings</h2>
             <p class="text-xs text-slate-400">Configure network mode</p>
           </div>
         </a>
 
         <!-- Device Info Card -->
-        <button onclick="showDeviceInfo()" class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center gap-4 btn-touch group">
-          <div class="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center group-active:bg-blue-500/20 transition-colors">
-            <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button onclick="showDeviceInfo()" class="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-3 btn-touch group overflow-hidden">
+          <div class="w-14 h-14 bg-blue-500/10 rounded-xl flex items-center justify-center group-active:bg-blue-500/20 transition-colors flex-shrink-0">
+            <svg class="w-7 h-7 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
             </svg>
           </div>
-          <div class="text-center">
-            <h2 class="text-lg font-semibold text-slate-100 mb-1">Device Info</h2>
+          <div class="text-center flex-shrink-0">
+            <h2 class="text-base font-semibold text-slate-100 mb-0.5">Device Info</h2>
             <p class="text-xs text-slate-400">Connected iOS device</p>
           </div>
         </button>
 
         <!-- System Logs Card -->
-        <button onclick="showLogs()" class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center gap-4 btn-touch group">
-          <div class="w-16 h-16 bg-emerald-500/10 rounded-xl flex items-center justify-center group-active:bg-emerald-500/20 transition-colors">
-            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button onclick="showLogs()" class="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-3 btn-touch group overflow-hidden">
+          <div class="w-14 h-14 bg-emerald-500/10 rounded-xl flex items-center justify-center group-active:bg-emerald-500/20 transition-colors flex-shrink-0">
+            <svg class="w-7 h-7 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
             </svg>
           </div>
-          <div class="text-center">
-            <h2 class="text-lg font-semibold text-slate-100 mb-1">System Logs</h2>
+          <div class="text-center flex-shrink-0">
+            <h2 class="text-base font-semibold text-slate-100 mb-0.5">System Logs</h2>
             <p class="text-xs text-slate-400">View activity logs</p>
           </div>
         </button>
 
         <!-- Refresh Card -->
-        <button onclick="location.reload()" class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center gap-4 btn-touch group">
-          <div class="w-16 h-16 bg-slate-700/50 rounded-xl flex items-center justify-center group-active:bg-slate-700/70 transition-colors">
-            <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <button onclick="location.reload()" class="glass-card rounded-2xl p-4 flex flex-col items-center justify-center gap-3 btn-touch group overflow-hidden">
+          <div class="w-14 h-14 bg-slate-700/50 rounded-xl flex items-center justify-center group-active:bg-slate-700/70 transition-colors flex-shrink-0">
+            <svg class="w-7 h-7 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
             </svg>
           </div>
-          <div class="text-center">
-            <h2 class="text-lg font-semibold text-slate-100 mb-1">Refresh</h2>
+          <div class="text-center flex-shrink-0">
+            <h2 class="text-base font-semibold text-slate-100 mb-0.5">Refresh</h2>
             <p class="text-xs text-slate-400">Reload interface</p>
           </div>
         </button>
@@ -112,6 +112,26 @@
         </div>
       </div>
     </footer>
+  </div>
+
+  <!-- Modal Overlay -->
+  <div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal-container">
+      <div class="glass-card rounded-2xl p-6 max-w-md w-full mx-4">
+        <div class="flex items-center justify-between mb-4">
+          <h3 id="modalTitle" class="text-xl font-semibold text-slate-100"></h3>
+          <button onclick="closeModal()" class="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-slate-800/50 transition-colors btn-touch">
+            <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+          </button>
+        </div>
+        <div id="modalContent" class="text-slate-300 space-y-3 mb-6"></div>
+        <button onclick="closeModal()" class="w-full py-3 px-4 bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/30 rounded-lg text-cyan-400 font-medium transition-colors btn-touch">
+          Close
+        </button>
+      </div>
+    </div>
   </div>
 
   <script type="module" src="/src/main.js"></script>
@@ -156,12 +176,94 @@
         document.getElementById('modeText').textContent = 'API Unavailable';
       });
 
+    // Modal functions
+    function showModal(title, content) {
+      const overlay = document.getElementById('modalOverlay');
+      const modalTitle = document.getElementById('modalTitle');
+      const modalContent = document.getElementById('modalContent');
+      
+      modalTitle.textContent = title;
+      modalContent.innerHTML = content;
+      overlay.classList.remove('hidden');
+    }
+
+    function closeModal() {
+      const overlay = document.getElementById('modalOverlay');
+      overlay.classList.add('hidden');
+    }
+
+    // Close modal when clicking overlay
+    document.getElementById('modalOverlay').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
     function showDeviceInfo() {
-      alert('Device Info feature\n\nThis will display:\n• Connected iOS device\n• Battery status\n• Device model\n• iOS version');
+      const content = `
+        <div class="space-y-2">
+          <p class="text-sm text-slate-400 mb-3">This feature will display:</p>
+          <div class="flex items-start gap-2">
+            <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+            <span>Connected iOS device information</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+            </svg>
+            <span>Battery status and level</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+            <span>Device model and identifier</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg class="w-5 h-5 text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+            </svg>
+            <span>iOS version and build number</span>
+          </div>
+        </div>
+      `;
+      showModal('Device Info', content);
     }
 
     function showLogs() {
-      alert('System Logs feature\n\nThis will display:\n• Recent system events\n• USB connection logs\n• Error messages');
+      const content = `
+        <div class="space-y-2">
+          <p class="text-sm text-slate-400 mb-3">This feature will display:</p>
+          <div class="flex items-start gap-2">
+            <svg class="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+            </svg>
+            <span>Recent system events and activities</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg class="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+            </svg>
+            <span>USB connection logs and events</span>
+          </div>
+          <div class="flex items-start gap-2">
+            <svg class="w-5 h-5 text-emerald-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <span>Error messages and warnings</span>
+          </div>
+        </div>
+      `;
+      showModal('System Logs', content);
     }
   </script>
 </body>
