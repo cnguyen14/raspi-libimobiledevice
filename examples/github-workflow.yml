@@ -1,0 +1,63 @@
+name: Deploy to Raspberry Pi Kiosk
+
+on:
+  push:
+    branches:
+      - main  # Change to 'master' if that's your default branch
+  workflow_dispatch:  # Allow manual trigger from Actions tab
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        # This creates a 'dist' folder (Vite/React) or 'out' folder (Next.js)
+        # Adjust based on your framework
+
+      - name: Deploy to Raspberry Pi
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USER }}
+          password: ${{ secrets.PI_PASSWORD }}
+          port: ${{ secrets.PI_PORT }}
+          source: "dist/*"  # Change to "out/*" for Next.js, "build/*" for CRA
+          target: "/home/pi/app/"
+          strip_components: 1  # Remove 'dist' folder from path
+          rm: true  # Remove old files before deploying
+
+      - name: Restart web server
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USER }}
+          password: ${{ secrets.PI_PASSWORD }}
+          port: ${{ secrets.PI_PORT }}
+          script: |
+            pm2 restart kiosk-app || pm2 start serve --name "kiosk-app" -- /home/pi/app -p 3000 -s
+            pm2 save
+
+      - name: Refresh Chromium
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.PI_HOST }}
+          username: ${{ secrets.PI_USER }}
+          password: ${{ secrets.PI_PASSWORD }}
+          port: ${{ secrets.PI_PORT }}
+          script: |
+            export DISPLAY=:0
+            xdotool search --class chromium windowactivate --sync key --clearmodifiers F5

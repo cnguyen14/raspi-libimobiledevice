@@ -41,155 +41,207 @@ The Raspberry Pi now includes a **portable iOS device bridge system** that exten
 
 **Important:** When testing WiFi mode switching, SSH connectivity will be lost temporarily. Only switch modes when ready to test the complete system.
 
-## Orange Pi Connection
+### New: Chromium Kiosk with CI/CD Deployment
 
-**IMPORTANT:** This documentation repository is paired with a live Orange Pi Zero 2W system where libimobiledevice is installed and operational.
+The Raspberry Pi 4 is configured as a **Chromium kiosk** that automatically updates when code is pushed to GitHub:
+
+**Components Installed:**
+- **Chromium Browser** - Fullscreen kiosk mode
+- **Node.js 20 + PM2** - Web server process management
+- **serve** - Static file server on port 3000
+- **xdotool** - Browser automation for auto-refresh
+
+**Architecture:**
+```
+GitHub Push → GitHub Actions Build → SSH Deploy → PM2 Restart → Chromium Refresh
+```
+
+**Key Features:**
+- Automatic deployment from GitHub Actions
+- Password-based SSH deployment (learning setup)
+- PM2 process management with auto-restart
+- Chromium kiosk displays `http://localhost:3000`
+- Auto-refresh via xdotool (F5 key simulation)
+- Survives reboots - kiosk starts automatically
+
+**System Services:**
+- `kiosk.service` - Chromium kiosk autostart
+- PM2 managed process: `kiosk-app` (serve on port 3000)
+
+**File Locations:**
+- App files: `/home/pi/app/`
+- Kiosk script: `/home/pi/kiosk.sh`
+- Systemd service: `/etc/systemd/system/kiosk.service`
+- PM2 config: `/home/pi/.pm2/`
+
+**Documentation:** See [docs/KIOSK_SETUP.md](docs/KIOSK_SETUP.md) for complete setup guide, GitHub Actions configuration, and troubleshooting.
+
+## Raspberry Pi 4 Connection
+
+**IMPORTANT:** This documentation repository is paired with a live Raspberry Pi 4 system fully configured with Chromium kiosk and libimobiledevice.
 
 ### SSH Connection Details
-- **Host:** 192.168.68.69
-- **User:** orangepi
-- **Password:** orangepi
-- **Root Password:** orangepi
-- **Hostname:** orangepi
-- **Kernel:** Linux 6.1.43-current-sunxi64 (aarch64)
-- **OS:** Armbian 25.11.2 (Debian 12 Bookworm)
-- **SoC:** Allwinner H616 with Mali G31 MP2 GPU
+- **Host:** 192.168.1.137
+- **User:** pi
+- **Password:** root
+- **Hostname:** pi
+- **Kernel:** Linux 6.12.47+rpt-rpi-v8 (aarch64)
+- **OS:** Debian GNU/Linux 13 (trixie) - Raspberry Pi OS
+- **Hardware:** Raspberry Pi 4 Model B
 
-### Connecting to the Orange Pi
+### Connecting to the Raspberry Pi
 
 Using standard SSH:
 ```bash
-ssh orangepi@192.168.68.69
-# Password: orangepi
+ssh pi@192.168.1.137
+# Password: root
 ```
 
 Using sshpass (non-interactive):
 ```bash
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "command"
+sshpass -p 'root' ssh pi@192.168.1.137 "command"
 ```
 
 For root access:
 ```bash
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "echo 'orangepi' | sudo -S command"
+sshpass -p 'root' ssh pi@192.168.1.137 "echo 'root' | sudo -S command"
 ```
 
 ### libimobiledevice Installation Status
 
-**✅ INSTALLED** (January 21, 2026) - All components built from GitHub source
+**✅ INSTALLED AND TESTED** - Installed January 21, 2026
 
-**Installed Versions:**
-- libplist: 2.7.0-19-g2c50f76 (specific commit to avoid assertion errors)
-- libimobiledevice-glue: 1.3.2-5-gda770a7
-- libusbmuxd: 2.1.1-2-g93eb168
-- libtatsu: 1.0.5-3-g60a39f3
-- libimobiledevice: 1.4.0-6-gc4f1118
-- usbmuxd daemon: 1.1.1-72-g3ded00c
+libimobiledevice 1.4.0 has been successfully built from GitHub source and tested with iPhone iOS 26.2.
 
-**Installation Location:** `/usr/local/lib` and `/usr/local/bin`
+**Installed Components:**
+1. ✅ libplist (2.7.0-22-g001a59e) - Commit 2c50f76 (critical for iOS 26.2 compatibility)
+2. ✅ libimobiledevice-glue (1.3.2-3-gd0f6398)
+3. ✅ libusbmuxd (2.1.1-2-gfe5c80a)
+4. ✅ libtatsu (1.0.5-2-g1d5e76d)
+5. ✅ libimobiledevice (1.4.0-6-gc4f1118)
+6. ✅ usbmuxd daemon (1.1.1-51-ge8f7954) - Running and auto-starts
 
-**Status:**
-```bash
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "ideviceinfo --version"
-# Output: ideviceinfo 1.4.0-6-gc4f1118
+**Installation Locations:**
+- Libraries: `/usr/local/lib`
+- Tools: `/usr/local/bin` (23 idevice tools installed)
+- Daemon: `/usr/local/sbin/usbmuxd`
 
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "systemctl is-active usbmuxd"
-# Output: active
+**System Configuration:**
+- ✅ udev rules: `/etc/udev/rules.d/39-usbmuxd.rules`
+- ✅ systemd service: `/lib/systemd/system/usbmuxd.service`
+- ✅ usbmux group (GID: 985) with user `pi` added
+- ✅ Automatic device detection enabled
 
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "idevice_id -l"
-# Output: 00008150-000971D00A20401C (when iPhone connected)
-```
+**Tested Device:**
+- Device: iPhone (iPhone18,2)
+- iOS Version: 26.2
+- UDID: 00008150-000971D00A20401C
+- Status: Paired and communicating successfully
+- USB: Apple device ID 05ac:12a8
 
-**Testing Results:**
-- ✅ Device detection: Working
-- ✅ Device info retrieval: Working
-- ✅ Date/time sync: Working
-- ✅ Tested with: iOS 26.2 (iPhone 16 Pro)
-
-**Critical Notes:**
-- All apt packages (usbmuxd, libplist3, libusbmuxd6, libimobiledevice6) were removed
-- Must use libplist commit 2c50f76 to avoid assertion failures
-- systemd service configured and enabled on boot
-
-For reinstallation or troubleshooting, see [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md).
+**Verified Functionality:**
+- ✅ Device detection (`idevice_id -l`)
+- ✅ Device information retrieval (`ideviceinfo`)
+- ✅ Pairing validation (`idevicepair validate`)
+- ✅ Device name query (`idevicename`)
+- ✅ Battery status (`ideviceinfo -q com.apple.mobile.battery`)
+- ⚠️ Screenshot requires developer disk image (expected limitation)
+- ⚠️ idevicesyslog has symbol lookup error (minor, other tools work)
 
 ### System Resources
-- **Memory:** 4 GB RAM
-- **Storage:** 64 GB SD card
-- **OS:** Armbian 25.11.2 (Debian 12 Bookworm)
-- **Display:** QDTECH MPI7002 7" touchscreen (1024x600)
+- **Hardware:** Raspberry Pi 4 Model B
+- **Architecture:** ARM64 (aarch64)
+- **OS:** Debian GNU/Linux 13 (trixie)
+- **Kernel:** 6.12.47+rpt-rpi-v8
 
 ### System State (Last Updated: January 21, 2026)
 
-**Current Status:** Fresh Armbian installation with optimizations
+**Current Status:** Fully configured with Chromium kiosk and libimobiledevice
 
-**Mali GPU:** ✅ Activated
-- Configuration: `/boot/armbianEnv.txt` with `overlays=gpu`
-- DRM devices: card0, card1, renderD128
-- Renderer: Mali-G31 (Panfrost)
+**Installed Systems:**
+1. ✅ Chromium Kiosk - Auto-starts on boot, displays `http://localhost:3000`
+2. ✅ PM2 Web Server - Serves kiosk content, survives reboots
+3. ✅ GitHub Actions CI/CD - Ready for deployment (requires GitHub secrets configuration)
+4. ✅ libimobiledevice 1.4.0 - Full iOS device communication suite
+5. ✅ usbmuxd - Automatic iPhone detection and pairing
 
-**Boot Performance:** ✅ Optimized
-- Boot time: 10.9 seconds (4.3s kernel + 6.6s userspace)
-- Optimized from baseline by disabling unnecessary services
-
-**Disabled Services (for faster boot):**
-- bluetooth.service, aw859a-bluetooth.service (Bluetooth not needed)
-- armbian-zram-config.service (ZRAM swap, 4GB RAM sufficient)
-- armbian-ramlog.service (RAM logging)
-- rsyslog.service (using journald instead)
-- armbian-hardware-monitor.service (not critical)
-- e2scrub_reap.service (filesystem scrubbing)
-- fake-hwclock.service (using systemd-timesyncd)
-- systemd-networkd-wait-online.service (prevents boot delays)
-
-**Disabled Timers:**
-- apt-daily.timer, apt-daily-upgrade.timer (manual updates)
-- e2scrub_all.timer, dpkg-db-backup.timer (not critical)
-
-**Enabled Services (essential only):**
-- ssh.service (remote access)
-- systemd-networkd.service, systemd-resolved.service (networking)
-- systemd-timesyncd.service (time sync)
-- aw859a-wifi.service, wpa_supplicant.service (WiFi)
-- cron.service (scheduled tasks)
-- armbian-hardware-optimize.service, armbian-led-state.service (system optimization)
+**Verified Capabilities:**
+- Chromium kiosk boots in ~10-20 seconds (minimal X11 setup)
+- iPhone iOS 26.2 detection and communication working
+- PM2 process management operational
+- Ready for application deployment via GitHub push
 
 ### Common Remote Commands
 
-Run idevice commands on the Orange Pi:
+**System Status:**
 ```bash
-# List connected iOS devices
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "idevice_id -l"
+# Check system information
+sshpass -p 'root' ssh pi@192.168.1.137 "uname -a"
 
-# Get device information
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "ideviceinfo -s"
+# Check available disk space
+sshpass -p 'root' ssh pi@192.168.1.137 "df -h"
 
+# View system status
+sshpass -p 'root' ssh pi@192.168.1.137 "systemctl status"
+
+# Update system packages
+sshpass -p 'root' ssh pi@192.168.1.137 "sudo apt update && sudo apt upgrade -y"
+```
+
+**iOS Device Commands:**
+```bash
+# List connected iOS devices (returns UDID)
+sshpass -p 'root' ssh pi@192.168.1.137 "idevice_id -l"
+
+# Get full device information
+sshpass -p 'root' ssh pi@192.168.1.137 "ideviceinfo"
+
+# Get device name
+sshpass -p 'root' ssh pi@192.168.1.137 "idevicename"
+
+# Get battery status
+sshpass -p 'root' ssh pi@192.168.1.137 "ideviceinfo -q com.apple.mobile.battery"
+
+# Check device pairing status
+sshpass -p 'root' ssh pi@192.168.1.137 "idevicepair validate"
+```
+
+**Service Management:**
+```bash
 # Check usbmuxd service status
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "systemctl status usbmuxd"
+sshpass -p 'root' ssh pi@192.168.1.137 "systemctl status usbmuxd"
 
-# View system logs
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "journalctl -u usbmuxd -n 20"
+# View usbmuxd logs
+sshpass -p 'root' ssh pi@192.168.1.137 "journalctl -u usbmuxd -n 20"
+
+# Check PM2 processes
+sshpass -p 'root' ssh pi@192.168.1.137 "pm2 status"
+
+# View Chromium kiosk status (via X display)
+sshpass -p 'root' ssh pi@192.168.1.137 "DISPLAY=:0 xdotool search --class chromium"
 ```
 
 ### Testing Changes
 
 When updating documentation that includes commands or configurations:
-1. SSH into the Orange Pi
+1. SSH into the Raspberry Pi
 2. Test the commands/configurations on the actual system
 3. Verify the output matches documentation
 4. Update documentation with accurate results
 
 ### Security Note
 
-The password "orangepi" is simple and should only be used on trusted local networks. This is typical for development/testing Orange Pi setups.
+The password "root" is simple and should only be used on trusted local networks. For production use, consider using SSH key-based authentication and a stronger password.
 
 ## Documentation Structure
 
-The repository contains four main documentation files in the `/docs` directory:
+The repository contains five main documentation files in the `/docs` directory:
 
 - **docs/README.md** - Overview and navigation guide
 - **docs/SETUP_GUIDE.md** - Complete installation and configuration guide (17KB, comprehensive)
 - **docs/QUICK_REFERENCE.md** - Fast command lookup (2.3KB)
 - **docs/CONFIG_FILES.md** - Configuration files and setup scripts (3.8KB)
+- **docs/KIOSK_SETUP.md** - Chromium kiosk and CI/CD deployment guide
 
 ## Key System Components Documented
 
@@ -347,11 +399,15 @@ When documenting versions, include:
 ```
 raspi-libimobiledevice/
 ├── CLAUDE.md              # This file - guidance for Claude Code
+├── examples/              # Example configurations for deployment
+│   ├── github-workflow.yml # GitHub Actions deployment template
+│   └── test-page.html     # Test page for kiosk verification
 └── docs/
     ├── README.md          # Entry point, overview, navigation
     ├── SETUP_GUIDE.md     # Complete setup, troubleshooting, reference
     ├── QUICK_REFERENCE.md # Fast command lookup for daily use
-    └── CONFIG_FILES.md    # Copy-paste configs and scripts
+    ├── CONFIG_FILES.md    # Copy-paste configs and scripts
+    └── KIOSK_SETUP.md     # Chromium kiosk and CI/CD guide
 ```
 
 Each file serves a specific audience:
@@ -359,3 +415,4 @@ Each file serves a specific audience:
 - docs/SETUP_GUIDE.md: People doing installation
 - docs/QUICK_REFERENCE.md: Daily users
 - docs/CONFIG_FILES.md: System replication/backup
+- docs/KIOSK_SETUP.md: Kiosk and CI/CD setup
