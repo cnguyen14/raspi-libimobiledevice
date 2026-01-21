@@ -1,19 +1,25 @@
 {
   "name": "pi-ios-bridge-kiosk",
-  "version": "1.0.0",
-  "description": "Chromium Kiosk Display for Raspberry Pi iOS Bridge",
+  "version": "2.0.0",
+  "description": "Professional Chromium Kiosk for Raspberry Pi iOS Bridge - Built with Vite + Tailwind v4",
+  "type": "module",
   "scripts": {
-    "dev": "npx serve public -l 3000",
-    "start": "npx serve public -l 3000 -s"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   },
   "keywords": [
     "kiosk",
     "raspberry-pi",
-    "chromium"
+    "ios-bridge",
+    "vite",
+    "tailwindcss"
   ],
   "author": "",
   "license": "MIT",
   "devDependencies": {
-    "serve": "^14.2.1"
+    "@tailwindcss/vite": "^4.0.0-alpha.31",
+    "tailwindcss": "^4.0.0-alpha.31",
+    "vite": "^6.0.5"
   }
 }

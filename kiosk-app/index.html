@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Raspberry Pi iOS Bridge</title>
+  <link rel="stylesheet" href="/src/main.css">
+</head>
+<body>
+  <div class="flex flex-col h-full">
+    <!-- Header -->
+    <header class="glass-card px-5 py-4 border-b border-slate-800">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+            π
+          </div>
+          <div>
+            <h1 class="text-xl font-semibold text-slate-100">Raspberry Pi</h1>
+            <p class="text-xs text-slate-400">iOS Device Bridge</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2 text-sm text-slate-400">
+            <span id="statusDot" class="status-dot offline"></span>
+            <span id="statusText">Offline</span>
+          </div>
+          <div class="text-sm font-mono text-cyan-400" id="time">--:--</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 p-5 overflow-hidden">
+      <div class="grid grid-cols-2 gap-4 h-full">
+        <!-- WiFi Settings Card -->
+        <a href="/wifi-settings.html" class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center gap-4 btn-touch group">
+          <div class="w-16 h-16 bg-cyan-500/10 rounded-xl flex items-center justify-center group-active:bg-cyan-500/20 transition-colors">
+            <svg class="w-8 h-8 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
+            </svg>
+          </div>
+          <div class="text-center">
+            <h2 class="text-lg font-semibold text-slate-100 mb-1">WiFi Settings</h2>
+            <p class="text-xs text-slate-400">Configure network mode</p>
+          </div>
+        </a>
+
+        <!-- Device Info Card -->
+        <button onclick="showDeviceInfo()" class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center gap-4 btn-touch group">
+          <div class="w-16 h-16 bg-blue-500/10 rounded-xl flex items-center justify-center group-active:bg-blue-500/20 transition-colors">
+            <svg class="w-8 h-8 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+            </svg>
+          </div>
+          <div class="text-center">
+            <h2 class="text-lg font-semibold text-slate-100 mb-1">Device Info</h2>
+            <p class="text-xs text-slate-400">Connected iOS device</p>
+          </div>
+        </button>
+
+        <!-- System Logs Card -->
+        <button onclick="showLogs()" class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center gap-4 btn-touch group">
+          <div class="w-16 h-16 bg-emerald-500/10 rounded-xl flex items-center justify-center group-active:bg-emerald-500/20 transition-colors">
+            <svg class="w-8 h-8 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+            </svg>
+          </div>
+          <div class="text-center">
+            <h2 class="text-lg font-semibold text-slate-100 mb-1">System Logs</h2>
+            <p class="text-xs text-slate-400">View activity logs</p>
+          </div>
+        </button>
+
+        <!-- Refresh Card -->
+        <button onclick="location.reload()" class="glass-card rounded-2xl p-6 flex flex-col items-center justify-center gap-4 btn-touch group">
+          <div class="w-16 h-16 bg-slate-700/50 rounded-xl flex items-center justify-center group-active:bg-slate-700/70 transition-colors">
+            <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+            </svg>
+          </div>
+          <div class="text-center">
+            <h2 class="text-lg font-semibold text-slate-100 mb-1">Refresh</h2>
+            <p class="text-xs text-slate-400">Reload interface</p>
+          </div>
+        </button>
+      </div>
+    </main>
+
+    <!-- Footer Status Bar -->
+    <footer class="glass-card px-5 py-3 border-t border-slate-800">
+      <div class="flex items-center justify-between text-xs">
+        <div class="flex items-center gap-4">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"></path>
+            </svg>
+            <span class="text-slate-400" id="modeText">System Ready</span>
+          </div>
+
+          <div class="flex items-center gap-2" id="ipSection" style="display: none;">
+            <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 01-9 9m9-9a9 9 0 00-9-9m9 9H3m9 9a9 9 0 01-9-9m9 9c1.657 0 3-4.03 3-9s-1.343-9-3-9m0 18c-1.657 0-3-4.03-3-9s1.343-9 3-9m-9 9a9 9 0 019-9"></path>
+            </svg>
+            <span class="font-mono text-cyan-400" id="ipText">---.---.---.---</span>
+          </div>
+        </div>
+
+        <div class="text-slate-500">
+          v2.0.0 • Vite + Tailwind
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+  <script>
+    // Update time
+    function updateTime() {
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      document.getElementById('time').textContent = `${hours}:${minutes}`;
+    }
+    updateTime();
+    setInterval(updateTime, 1000);
+
+    // Load WiFi status
+    fetch('/api/wifi/status')
+      .then(res => res.json())
+      .then(data => {
+        const statusDot = document.getElementById('statusDot');
+        const statusText = document.getElementById('statusText');
+        const modeText = document.getElementById('modeText');
+        const ipText = document.getElementById('ipText');
+        const ipSection = document.getElementById('ipSection');
+
+        if (data.mode === 'ap') {
+          statusDot.className = 'status-dot ap-mode';
+          statusText.textContent = 'AP Mode';
+          modeText.textContent = 'WiFi Hotspot Active';
+        } else {
+          statusDot.className = 'status-dot online';
+          statusText.textContent = 'Online';
+          modeText.textContent = 'Connected to Network';
+        }
+
+        if (data.ipAddress) {
+          ipText.textContent = data.ipAddress;
+          ipSection.style.display = 'flex';
+        }
+      })
+      .catch(() => {
+        document.getElementById('statusText').textContent = 'Offline';
+        document.getElementById('modeText').textContent = 'API Unavailable';
+      });
+
+    function showDeviceInfo() {
+      alert('Device Info feature\n\nThis will display:\n• Connected iOS device\n• Battery status\n• Device model\n• iOS version');
+    }
+
+    function showLogs() {
+      alert('System Logs feature\n\nThis will display:\n• Recent system events\n• USB connection logs\n• Error messages');
+    }
+  </script>
+</body>
+</html>

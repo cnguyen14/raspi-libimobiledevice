@@ -1,0 +1,63 @@
+@import "tailwindcss";
+
+@theme {
+  /* Professional Color Palette - Dark Slate Industrial IoT */
+  --color-brand-cyan: oklch(0.72 0.14 195);
+  --color-brand-cyan-light: oklch(0.80 0.12 195);
+  --color-brand-cyan-dark: oklch(0.55 0.16 195);
+
+  /* Custom font sizes optimized for 800x480 touchscreen */
+  --font-size-touch-lg: 1.5rem;  /* 24px */
+  --font-size-touch-xl: 2rem;    /* 32px */
+  --font-size-touch-2xl: 2.25rem; /* 36px */
+}
+
+/* Base styles */
+* {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+body {
+  @apply bg-slate-950 text-slate-100;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  width: 800px;
+  height: 480px;
+  overflow: hidden;
+  margin: 0;
+  padding: 0;
+}
+
+/* Touch-optimized button states */
+.btn-touch:active {
+  @apply scale-[0.98] brightness-110;
+}
+
+/* Status indicators */
+.status-dot {
+  @apply w-2 h-2 rounded-full animate-pulse;
+}
+
+.status-dot.online {
+  @apply bg-emerald-400;
+}
+
+.status-dot.offline {
+  @apply bg-slate-600;
+}
+
+.status-dot.ap-mode {
+  @apply bg-cyan-400;
+}
+
+/* Card glassmorphism effect */
+.glass-card {
+  @apply bg-slate-900/50 backdrop-blur-sm border border-slate-800/50;
+}
+
+/* Hover effects for non-touch (development) */
+@media (hover: hover) {
+  .btn-touch:hover {
+    @apply brightness-110;
+  }
+}

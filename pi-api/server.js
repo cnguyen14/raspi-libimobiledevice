@@ -49,8 +49,8 @@ app.use('/api/battery', batteryRoutes);
 app.use('/api/sync', syncRoutes);
 app.use('/api/wifi', wifiRoutes);
 
-// Serve static files (kiosk app, WiFi settings)
-app.use(express.static(path.join(__dirname, '../kiosk-app/public')));
+// Serve static files (kiosk app from Vite build)
+app.use(express.static(path.join(__dirname, '../kiosk-app/dist')));
 
 // Root endpoint
 app.get('/', (req, res) => {
