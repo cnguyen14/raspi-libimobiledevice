@@ -3,176 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raspberry Pi Kiosk - Test Page</title>
+    <title>Raspberry Pi iOS Bridge</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            overflow: hidden;
+            color: white;
+            padding: 20px;
         }
-
         .container {
             text-align: center;
-            padding: 3rem;
-            max-width: 800px;
+            max-width: 600px;
         }
-
-        .logo {
-            font-size: 6rem;
-            margin-bottom: 1rem;
-            animation: pulse 2s ease-in-out infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
-        }
-
         h1 {
-            font-size: 4rem;
-            font-weight: 700;
-            margin-bottom: 1rem;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+            font-size: 48px;
+            margin-bottom: 20px;
         }
-
-        .subtitle {
-            font-size: 1.5rem;
+        p {
+            font-size: 20px;
+            margin-bottom: 40px;
             opacity: 0.9;
-            margin-bottom: 3rem;
         }
-
-        .status-card {
-            background: rgba(255, 255, 255, 0.2);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 2rem;
-            margin-bottom: 2rem;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.1);
-        }
-
-        .info-grid {
+        .button-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-top: 1.5rem;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 40px;
         }
-
-        .info-item {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 1rem;
-            border-radius: 10px;
-        }
-
-        .info-label {
-            font-size: 0.875rem;
-            opacity: 0.8;
-            margin-bottom: 0.5rem;
-        }
-
-        .info-value {
-            font-size: 1.5rem;
-            font-weight: 600;
-        }
-
-        .footer {
-            margin-top: 2rem;
-            font-size: 0.875rem;
-            opacity: 0.7;
-        }
-
-        .version {
-            display: inline-block;
+        .button {
+            display: block;
+            padding: 40px 30px;
             background: rgba(255, 255, 255, 0.2);
-            padding: 0.25rem 0.75rem;
+            border: 3px solid rgba(255, 255, 255, 0.3);
             border-radius: 20px;
-            font-size: 0.75rem;
-            margin-top: 1rem;
+            text-decoration: none;
+            color: white;
+            font-size: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        .button .icon {
+            font-size: 48px;
+            margin-bottom: 10px;
+        }
+        .status {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+        .status strong {
+            display: block;
+            margin-bottom: 10px;
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="logo">🚀</div>
-        <h1>Kiosk is Running!</h1>
-        <p class="subtitle">Your Chromium kiosk is successfully configured and deployed</p>
+        <h1>🍓 Raspberry Pi</h1>
+        <p>iOS Device Bridge</p>
 
-        <div class="status-card">
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-label">Current Time</div>
-                    <div class="info-value" id="time">--:--:--</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Current Date</div>
-                    <div class="info-value" id="date">Loading...</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-label">Uptime</div>
-                    <div class="info-value" id="uptime">0s</div>
-                </div>
+        <div class="button-grid">
+            <a href="/wifi-settings.html" class="button">
+                <div class="icon">🌐</div>
+                <div>WiFi Settings</div>
+            </a>
+            <div class="button" onclick="location.reload()">
+                <div class="icon">🔄</div>
+                <div>Refresh</div>
             </div>
         </div>
 
-        <div class="footer">
-            <p>To deploy updates, push your code to GitHub and watch the magic happen! ✨</p>
-            <div class="version">v1.0.0 - Deployed via GitHub Actions</div>
+        <div class="status">
+            <strong>System Status</strong>
+            <div id="time"></div>
+            <div id="mode">Loading...</div>
         </div>
     </div>
 
     <script>
         // Update time
         function updateTime() {
-            const now = new Date();
-            document.getElementById('time').textContent = now.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit',
-                second: '2-digit'
-            });
-            document.getElementById('date').textContent = now.toLocaleDateString('en-US', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
+            document.getElementById('time').textContent = new Date().toLocaleString();
         }
-
-        // Update uptime
-        const startTime = Date.now();
-        function updateUptime() {
-            const elapsed = Math.floor((Date.now() - startTime) / 1000);
-            const hours = Math.floor(elapsed / 3600);
-            const minutes = Math.floor((elapsed % 3600) / 60);
-            const seconds = elapsed % 60;
-
-            let uptimeStr = '';
-            if (hours > 0) uptimeStr += `${hours}h `;
-            if (minutes > 0) uptimeStr += `${minutes}m `;
-            uptimeStr += `${seconds}s`;
-
-            document.getElementById('uptime').textContent = uptimeStr;
-        }
-
-        // Initialize
         updateTime();
-        updateUptime();
         setInterval(updateTime, 1000);
-        setInterval(updateUptime, 1000);
 
-        // Log to console
-        console.log('%c🚀 Kiosk System Active', 'font-size: 20px; color: #667eea; font-weight: bold;');
-        console.log('Deployment: GitHub Actions → PM2 → Chromium Kiosk');
-        console.log('Status: All systems operational ✓');
+        // Check WiFi status
+        fetch('/api/wifi/status')
+            .then(res => res.json())
+            .then(data => {
+                const modeText = data.mode === 'ap' ?
+                    `📶 AP Mode - ${data.ipAddress}` :
+                    `🌍 Client Mode - ${data.ipAddress}`;
+                document.getElementById('mode').textContent = modeText;
+            })
+            .catch(err => {
+                document.getElementById('mode').textContent = '❌ API not available';
+            });
     </script>
 </body>
 </html>
