@@ -2,261 +2,260 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>WiFi Settings - Raspberry Pi</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>WiFi Settings</title>
   <style>
     * {
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
     }
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
       background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-      color: #333;
+      width: 800px;
+      height: 480px;
+      overflow: hidden;
+      color: white;
+      touch-action: manipulation;
     }
 
     .container {
-      max-width: 800px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 20px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
     }
 
     .header {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      padding: 30px;
-      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
     }
 
-    .header h1 {
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .back-btn {
       font-size: 32px;
-      margin-bottom: 10px;
+      cursor: pointer;
+      background: rgba(255, 255, 255, 0.2);
+      width: 50px;
+      height: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    .back-btn:active {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(0.95);
+    }
+
+    h1 {
+      font-size: 28px;
     }
 
     .status-badge {
-      display: inline-block;
-      padding: 8px 20px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
       border-radius: 20px;
-      background: rgba(255,255,255,0.2);
-      font-size: 16px;
-      margin-top: 10px;
-    }
-
-    .content {
-      padding: 30px;
-    }
-
-    .mode-selector {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 30px;
-    }
-
-    .mode-card {
-      background: #f8f9fa;
-      border: 3px solid #e9ecef;
-      border-radius: 15px;
-      padding: 30px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .mode-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-    }
-
-    .mode-card.active {
-      border-color: #667eea;
-      background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
-    }
-
-    .mode-card .icon {
-      font-size: 48px;
-      margin-bottom: 15px;
-    }
-
-    .mode-card h3 {
-      font-size: 24px;
-      margin-bottom: 10px;
-      color: #333;
-    }
-
-    .mode-card p {
-      color: #666;
       font-size: 14px;
     }
 
-    .section {
-      margin-bottom: 30px;
-    }
-
-    .section h2 {
-      font-size: 20px;
-      margin-bottom: 15px;
-      color: #333;
+    .content {
+      flex: 1;
       display: flex;
-      align-items: center;
-      gap: 10px;
+      overflow: hidden;
     }
 
-    .btn {
-      display: inline-block;
-      padding: 12px 30px;
-      border-radius: 10px;
-      border: none;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-decoration: none;
-      text-align: center;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-    }
-
-    .btn-primary:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 5px 20px rgba(102,126,234,0.4);
-    }
-
-    .btn-secondary {
-      background: #e9ecef;
-      color: #333;
-    }
-
-    .btn-secondary:hover {
-      background: #dee2e6;
-    }
-
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .network-list {
-      max-height: 400px;
+    .sidebar {
+      width: 280px;
+      background: rgba(255, 255, 255, 0.1);
+      padding: 20px;
       overflow-y: auto;
     }
 
-    .network-item {
-      background: #f8f9fa;
+    .main {
+      flex: 1;
       padding: 20px;
-      margin-bottom: 10px;
-      border-radius: 10px;
+      overflow-y: auto;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+
+    .mode-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .mode-card {
+      background: rgba(255, 255, 255, 0.15);
+      border: 3px solid rgba(255, 255, 255, 0.3);
+      border-radius: 15px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: center;
+    }
+
+    .mode-card:active {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(0.98);
+    }
+
+    .mode-card.active {
+      border-color: #4ade80;
+      background: rgba(74, 222, 128, 0.2);
+    }
+
+    .mode-card .icon {
+      font-size: 40px;
+      margin-bottom: 8px;
+    }
+
+    .mode-card .title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .mode-card .desc {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 14px 20px;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      width: 100%;
+      transition: all 0.2s ease;
+    }
+
+    .btn:active {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(0.98);
+    }
+
+    .btn-primary {
+      background: #4ade80;
+      border-color: #4ade80;
+    }
+
+    .btn-primary:active {
+      background: #22c55e;
+    }
+
+    .network-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .network-item {
+      background: rgba(255, 255, 255, 0.15);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      padding: 15px;
+      cursor: pointer;
+      transition: all 0.2s ease;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: 2px solid transparent;
     }
 
-    .network-item:hover {
-      background: #e9ecef;
-      border-color: #667eea;
+    .network-item:active {
+      background: rgba(255, 255, 255, 0.25);
+      transform: scale(0.98);
     }
 
     .network-item.selected {
-      border-color: #667eea;
-      background: linear-gradient(135deg, rgba(102,126,234,0.1) 0%, rgba(118,75,162,0.1) 100%);
-    }
-
-    .network-info {
-      flex: 1;
+      border-color: #4ade80;
+      background: rgba(74, 222, 128, 0.2);
     }
 
     .network-name {
       font-size: 18px;
       font-weight: 600;
-      margin-bottom: 5px;
+      margin-bottom: 4px;
     }
 
     .network-details {
-      font-size: 14px;
-      color: #666;
+      font-size: 12px;
+      opacity: 0.8;
     }
 
-    .signal-strength {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 14px;
-      color: #666;
+    .signal {
+      font-size: 24px;
     }
-
-    .signal-bars {
-      display: flex;
-      gap: 2px;
-      align-items: flex-end;
-    }
-
-    .signal-bar {
-      width: 4px;
-      background: #ccc;
-      border-radius: 2px;
-    }
-
-    .signal-bar.active {
-      background: #667eea;
-    }
-
-    .signal-bar:nth-child(1) { height: 8px; }
-    .signal-bar:nth-child(2) { height: 12px; }
-    .signal-bar:nth-child(3) { height: 16px; }
-    .signal-bar:nth-child(4) { height: 20px; }
 
     .input-group {
-      margin-bottom: 20px;
+      margin-bottom: 15px;
     }
 
     .input-group label {
       display: block;
       margin-bottom: 8px;
+      font-size: 14px;
       font-weight: 600;
-      color: #333;
     }
 
     .input-group input {
       width: 100%;
-      padding: 15px;
-      border: 2px solid #e9ecef;
+      padding: 14px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
       border-radius: 10px;
       font-size: 16px;
-      transition: border-color 0.3s ease;
+      background: rgba(255, 255, 255, 0.15);
+      color: white;
+    }
+
+    .input-group input::placeholder {
+      color: rgba(255, 255, 255, 0.5);
     }
 
     .input-group input:focus {
       outline: none;
-      border-color: #667eea;
+      border-color: #4ade80;
+      background: rgba(255, 255, 255, 0.2);
     }
 
     .loading {
       text-align: center;
       padding: 40px;
-      color: #666;
+      font-size: 16px;
+      opacity: 0.8;
     }
 
     .spinner {
-      border: 4px solid #f3f3f3;
-      border-top: 4px solid #667eea;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
       border-radius: 50%;
       width: 40px;
       height: 40px;
       animation: spin 1s linear infinite;
-      margin: 0 auto 20px;
+      margin: 0 auto 15px;
     }
 
     @keyframes spin {
@@ -264,114 +263,124 @@
       100% { transform: rotate(360deg); }
     }
 
-    .alert {
-      padding: 15px 20px;
-      border-radius: 10px;
-      margin-bottom: 20px;
-      font-size: 14px;
-    }
-
-    .alert-warning {
-      background: #fff3cd;
-      color: #856404;
-      border: 2px solid #ffeaa7;
-    }
-
-    .alert-info {
-      background: #d1ecf1;
-      color: #0c5460;
-      border: 2px solid #bee5eb;
-    }
-
     .hidden {
       display: none !important;
     }
 
-    .button-group {
-      display: flex;
-      gap: 15px;
-      margin-top: 20px;
+    .alert {
+      background: rgba(251, 191, 36, 0.2);
+      border: 2px solid rgba(251, 191, 36, 0.5);
+      padding: 12px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      font-size: 13px;
     }
 
-    .button-group .btn {
-      flex: 1;
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.3);
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: rgba(255, 255, 255, 0.5);
     }
   </style>
 </head>
 <body>
   <div class="container">
+    <!-- Header -->
     <div class="header">
-      <h1>🌐 WiFi Settings</h1>
+      <div class="header-left">
+        <div class="back-btn" onclick="goBack()">←</div>
+        <h1>🌐 WiFi Settings</h1>
+      </div>
       <div class="status-badge" id="statusBadge">Loading...</div>
     </div>
 
+    <!-- Content -->
     <div class="content">
-      <!-- Mode Selection -->
-      <div class="section">
-        <h2>📡 WiFi Mode</h2>
-        <div class="mode-selector">
+      <!-- Sidebar: Mode Selection -->
+      <div class="sidebar">
+        <div class="section-title">WiFi Mode</div>
+        <div class="mode-cards">
           <div class="mode-card" id="apModeCard" onclick="selectMode('ap')">
             <div class="icon">📶</div>
-            <h3>AP Mode</h3>
-            <p>Create WiFi hotspot<br>(Offline/Portable)</p>
+            <div class="title">AP Mode</div>
+            <div class="desc">Offline Hotspot</div>
           </div>
           <div class="mode-card" id="clientModeCard" onclick="selectMode('client')">
             <div class="icon">🌍</div>
-            <h3>Client Mode</h3>
-            <p>Connect to WiFi<br>(Online/Internet)</p>
+            <div class="title">Client Mode</div>
+            <div class="desc">Connect WiFi</div>
           </div>
         </div>
-      </div>
 
-      <!-- AP Mode Info -->
-      <div class="section hidden" id="apModeInfo">
-        <div class="alert alert-info">
-          <strong>AP Mode:</strong> Raspberry Pi will create a WiFi hotspot called <strong>"RaspberryPi-iOS"</strong> with password <strong>"raspberry123"</strong> at IP <strong>192.168.50.1</strong>
-        </div>
-        <button class="btn btn-primary" onclick="switchToAPMode()">
-          Activate AP Mode
-        </button>
-      </div>
-
-      <!-- Client Mode - Network Scanner -->
-      <div class="section hidden" id="clientModeSection">
-        <h2>📡 Available Networks</h2>
-        <button class="btn btn-secondary" onclick="scanNetworks()" id="scanBtn">
-          🔄 Scan Networks
-        </button>
-
-        <div class="loading hidden" id="scanLoading">
-          <div class="spinner"></div>
-          <p>Scanning for WiFi networks...</p>
+        <!-- AP Mode Actions -->
+        <div id="apModeActions" class="hidden">
+          <button class="btn btn-primary" onclick="switchToAPMode()">
+            Activate AP Mode
+          </button>
         </div>
 
-        <div class="network-list" id="networkList"></div>
-      </div>
-
-      <!-- WiFi Connection Form -->
-      <div class="section hidden" id="connectionForm">
-        <h2>🔐 Connect to Network</h2>
-        <div class="alert alert-warning">
-          <strong>⚠️ Warning:</strong> Switching to Client mode will change the Pi's IP address. Current screen may become inaccessible until you reconnect to the same network.
-        </div>
-        <div class="input-group">
-          <label>Network Name (SSID)</label>
-          <input type="text" id="ssidInput" readonly>
-        </div>
-        <div class="input-group">
-          <label>Password</label>
-          <input type="password" id="passwordInput" placeholder="Enter WiFi password">
-        </div>
-        <div class="button-group">
-          <button class="btn btn-secondary" onclick="cancelConnection()">Cancel</button>
-          <button class="btn btn-primary" onclick="connectToWiFi()">Connect</button>
+        <!-- Client Mode Actions -->
+        <div id="clientModeActions" class="hidden">
+          <button class="btn" onclick="scanNetworks()" id="scanBtn">
+            🔄 Scan Networks
+          </button>
         </div>
       </div>
 
-      <!-- Loading State -->
-      <div class="loading hidden" id="switchingLoading">
-        <div class="spinner"></div>
-        <p id="switchingMessage">Switching WiFi mode...</p>
+      <!-- Main: Network List or Connection Form -->
+      <div class="main">
+        <!-- Network List -->
+        <div id="networkListSection" class="hidden">
+          <div class="section-title">Available Networks</div>
+
+          <div id="scanLoading" class="loading hidden">
+            <div class="spinner"></div>
+            <div>Scanning...</div>
+          </div>
+
+          <div class="network-list" id="networkList"></div>
+        </div>
+
+        <!-- Connection Form -->
+        <div id="connectionForm" class="hidden">
+          <div class="section-title">Connect to Network</div>
+
+          <div class="alert">
+            ⚠️ Switching WiFi mode will change the Pi's IP address
+          </div>
+
+          <div class="input-group">
+            <label>Network Name</label>
+            <input type="text" id="ssidInput" readonly>
+          </div>
+
+          <div class="input-group">
+            <label>Password</label>
+            <input type="password" id="passwordInput" placeholder="Enter WiFi password">
+          </div>
+
+          <div style="display: flex; gap: 10px;">
+            <button class="btn" onclick="cancelConnection()" style="flex: 1;">Cancel</button>
+            <button class="btn btn-primary" onclick="connectToWiFi()" style="flex: 2;">Connect</button>
+          </div>
+        </div>
+
+        <!-- Welcome Screen -->
+        <div id="welcomeScreen" class="loading">
+          <div style="font-size: 64px; margin-bottom: 20px;">🌐</div>
+          <div>Select a WiFi mode to get started</div>
+        </div>
       </div>
     </div>
   </div>
@@ -380,7 +389,6 @@
     let currentMode = 'unknown';
     let selectedNetwork = null;
 
-    // Load current status on page load
     window.addEventListener('DOMContentLoaded', loadStatus);
 
     async function loadStatus() {
@@ -389,39 +397,36 @@
         const data = await response.json();
 
         currentMode = data.mode;
-        updateStatusBadge(data);
-        updateModeUI(data.mode);
+        updateUI(data);
       } catch (error) {
-        console.error('Error loading status:', error);
-        document.getElementById('statusBadge').textContent = 'Error loading status';
+        document.getElementById('statusBadge').textContent = 'Offline';
       }
     }
 
-    function updateStatusBadge(data) {
+    function updateUI(data) {
       const badge = document.getElementById('statusBadge');
-      if (data.mode === 'ap') {
-        badge.textContent = `📶 AP Mode - ${data.ipAddress}`;
-      } else if (data.mode === 'client') {
-        badge.textContent = `🌍 Client Mode - ${data.ipAddress}`;
-      } else {
-        badge.textContent = '❓ Unknown Mode';
-      }
-    }
 
-    function updateModeUI(mode) {
-      // Update mode cards
-      document.getElementById('apModeCard').classList.toggle('active', mode === 'ap');
-      document.getElementById('clientModeCard').classList.toggle('active', mode === 'client');
+      if (data.mode === 'ap') {
+        badge.textContent = `📶 ${data.ipAddress}`;
+        document.getElementById('apModeCard').classList.add('active');
+      } else {
+        badge.textContent = `🌍 ${data.ipAddress}`;
+        document.getElementById('clientModeCard').classList.add('active');
+      }
     }
 
     function selectMode(mode) {
-      if (mode === 'ap') {
-        document.getElementById('apModeInfo').classList.remove('hidden');
-        document.getElementById('clientModeSection').classList.add('hidden');
-        document.getElementById('connectionForm').classList.add('hidden');
-      } else {
-        document.getElementById('apModeInfo').classList.add('hidden');
-        document.getElementById('clientModeSection').classList.remove('hidden');
+      document.getElementById('apModeCard').classList.toggle('active', mode === 'ap');
+      document.getElementById('clientModeCard').classList.toggle('active', mode === 'client');
+
+      document.getElementById('apModeActions').classList.toggle('hidden', mode !== 'ap');
+      document.getElementById('clientModeActions').classList.toggle('hidden', mode !== 'client');
+
+      document.getElementById('welcomeScreen').classList.add('hidden');
+      document.getElementById('networkListSection').classList.toggle('hidden', mode !== 'client');
+      document.getElementById('connectionForm').classList.add('hidden');
+
+      if (mode === 'client') {
         scanNetworks();
       }
     }
@@ -442,9 +447,8 @@
         loading.classList.add('hidden');
         displayNetworks(data.networks);
       } catch (error) {
-        console.error('Error scanning networks:', error);
         loading.classList.add('hidden');
-        networkList.innerHTML = '<p style="padding: 20px; text-align: center; color: #999;">Error scanning networks</p>';
+        networkList.innerHTML = '<div style="text-align: center; opacity: 0.7;">Error scanning networks</div>';
       } finally {
         scanBtn.disabled = false;
       }
@@ -454,40 +458,34 @@
       const networkList = document.getElementById('networkList');
 
       if (networks.length === 0) {
-        networkList.innerHTML = '<p style="padding: 20px; text-align: center; color: #999;">No networks found</p>';
+        networkList.innerHTML = '<div style="text-align: center; opacity: 0.7;">No networks found</div>';
         return;
       }
 
       networkList.innerHTML = networks.map(network => `
         <div class="network-item" onclick="selectNetwork('${network.ssid}')">
-          <div class="network-info">
+          <div>
             <div class="network-name">${network.ssid}</div>
-            <div class="network-details">
-              ${network.encrypted ? '🔒 Secured' : '🔓 Open'} • ${network.qualityPercent}% signal
-            </div>
+            <div class="network-details">${network.encrypted ? '🔒 Secured' : '🔓 Open'} • ${network.qualityPercent}%</div>
           </div>
-          <div class="signal-strength">
-            <div class="signal-bars">
-              <div class="signal-bar ${network.qualityPercent > 25 ? 'active' : ''}"></div>
-              <div class="signal-bar ${network.qualityPercent > 50 ? 'active' : ''}"></div>
-              <div class="signal-bar ${network.qualityPercent > 75 ? 'active' : ''}"></div>
-              <div class="signal-bar ${network.qualityPercent > 90 ? 'active' : ''}"></div>
-            </div>
-          </div>
+          <div class="signal">${getSignalBars(network.qualityPercent)}</div>
         </div>
       `).join('');
     }
 
+    function getSignalBars(quality) {
+      if (quality >= 75) return '📶';
+      if (quality >= 50) return '📶';
+      if (quality >= 25) return '📶';
+      return '📶';
+    }
+
     function selectNetwork(ssid) {
       selectedNetwork = ssid;
-
-      // Update UI
-      document.querySelectorAll('.network-item').forEach(item => {
-        item.classList.remove('selected');
-      });
+      document.querySelectorAll('.network-item').forEach(item => item.classList.remove('selected'));
       event.currentTarget.classList.add('selected');
 
-      // Show connection form
+      document.getElementById('networkListSection').classList.add('hidden');
       document.getElementById('connectionForm').classList.remove('hidden');
       document.getElementById('ssidInput').value = ssid;
       document.getElementById('passwordInput').value = '';
@@ -496,36 +494,27 @@
 
     function cancelConnection() {
       document.getElementById('connectionForm').classList.add('hidden');
+      document.getElementById('networkListSection').classList.remove('hidden');
       selectedNetwork = null;
     }
 
     async function switchToAPMode() {
-      if (!confirm('Switch to AP Mode? This will create a WiFi hotspot at 192.168.50.1')) {
+      if (!confirm('Switch to AP Mode?\n\nThis will create a WiFi hotspot at 192.168.50.1')) {
         return;
       }
 
-      showSwitchingUI('Switching to AP Mode...');
-
       try {
-        const response = await fetch('http://localhost:3000/api/wifi/mode/ap', {
-          method: 'POST'
-        });
+        const response = await fetch('http://localhost:3000/api/wifi/mode/ap', { method: 'POST' });
         const data = await response.json();
 
         if (data.success) {
-          document.getElementById('switchingMessage').textContent =
-            'AP Mode activated! Reconnect to "RaspberryPi-iOS" WiFi';
-          setTimeout(() => {
-            window.location.href = 'http://192.168.50.1/wifi-settings.html';
-          }, 3000);
+          alert('✓ AP Mode activated!\n\nReconnect to "RaspberryPi-iOS" WiFi');
+          setTimeout(() => location.reload(), 2000);
         } else {
           alert('Error: ' + data.error);
-          hideSwitchingUI();
         }
       } catch (error) {
-        console.error('Error switching to AP mode:', error);
         alert('Error switching to AP mode');
-        hideSwitchingUI();
       }
     }
 
@@ -538,11 +527,9 @@
         return;
       }
 
-      if (!confirm(`Connect to "${ssid}"? Screen may disconnect temporarily.`)) {
+      if (!confirm(`Connect to "${ssid}"?\n\nScreen may disconnect temporarily.`)) {
         return;
       }
-
-      showSwitchingUI(`Connecting to ${ssid}...`);
 
       try {
         const response = await fetch('http://localhost:3000/api/wifi/mode/client', {
@@ -553,31 +540,18 @@
         const data = await response.json();
 
         if (data.success) {
-          document.getElementById('switchingMessage').textContent =
-            `Connected to ${ssid}! Reloading...`;
-          setTimeout(() => {
-            location.reload();
-          }, 5000);
+          alert(`✓ Connected to ${ssid}!\n\nReloading...`);
+          setTimeout(() => location.reload(), 3000);
         } else {
           alert('Error: ' + data.error);
-          hideSwitchingUI();
         }
       } catch (error) {
-        console.error('Error connecting to WiFi:', error);
         alert('Error connecting to WiFi');
-        hideSwitchingUI();
       }
     }
 
-    function showSwitchingUI(message) {
-      document.getElementById('switchingMessage').textContent = message;
-      document.getElementById('switchingLoading').classList.remove('hidden');
-      document.querySelector('.content').style.opacity = '0.5';
-    }
-
-    function hideSwitchingUI() {
-      document.getElementById('switchingLoading').classList.add('hidden');
-      document.querySelector('.content').style.opacity = '1';
+    function goBack() {
+      window.location.href = '/';
     }
   </script>
 </body>
