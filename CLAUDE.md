@@ -2,6 +2,50 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+---
+
+## ⚠️ CRITICAL WORKFLOW - READ THIS FIRST ⚠️
+
+### Working with Raspberry Pi
+
+**NEVER run scripts or commands directly on the user's laptop.** Always follow this workflow:
+
+#### For System Dependencies & Scripts (apt install, bash scripts):
+1. ✅ Create script on laptop (local development)
+2. ✅ Push to GitHub
+3. ✅ SSH to Pi: `sshpass -p 'root' ssh pi@192.168.1.137`
+4. ✅ Pull on Pi: `cd ~/raspi-ios-bridge && git pull origin master`
+5. ✅ Run script on Pi: `sudo ./script.sh` or `bash script.sh`
+6. ❌ NEVER run scripts on laptop using `Bash` tool directly
+
+#### For Frontend App (Chromium Kiosk):
+1. ✅ Develop app on laptop (edit HTML/JS/CSS files locally)
+2. ✅ Push to GitHub
+3. ✅ SSH to Pi and pull: `cd ~/raspi-ios-bridge && git pull origin master`
+4. ✅ Pi automatically updates (served by Pi API on port 3000)
+5. ❌ NEVER run `npm install` or build commands on laptop for Pi code
+
+#### SSH Connection Info:
+- **Host:** `192.168.1.137`
+- **User:** `pi`
+- **Password:** `root`
+- **Command:** `sshpass -p 'root' ssh pi@192.168.1.137 "command"`
+
+#### Git Workflow:
+```bash
+# On laptop
+git add .
+git commit -m "message"
+git push origin master
+
+# Then SSH to Pi
+sshpass -p 'root' ssh pi@192.168.1.137 "cd ~/raspi-ios-bridge && git pull origin master"
+```
+
+**Remember:** The Pi is the deployment target. Laptop is for development only.
+
+---
+
 ## Project Overview
 
 This is the **Raspberry Pi iOS Bridge** repository - a complete system for iOS device communication over USB with dual WiFi mode support (offline hotspot / online sync).
