@@ -4,415 +4,465 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-This is a **documentation repository** for libimobiledevice 1.4.0 setup on Raspberry Pi Zero 2W. It contains comprehensive guides for building, configuring, and using libimobiledevice to communicate with iOS devices over USB.
+This is the **Raspberry Pi iOS Bridge** repository - a complete system for iOS device communication over USB with dual WiFi mode support (offline hotspot / online sync).
 
-**Important:** This repository contains NO source code - only documentation files.
+**Repository Name:** raspi-ios-bridge (formerly raspi-libimobiledevice)
+**Purpose:** Raspberry Pi hardware setup, API server, and documentation
+**Target Platform:** Raspberry Pi Zero 2W, Pi 4, or compatible ARM64 boards
+**OS:** Raspberry Pi OS Lite 64-bit (Debian 12/13)
+**libimobiledevice Version:** 1.4.0 from GitHub source
+**Last Restructured:** January 21, 2026
 
-## Repository Purpose
+## Repository Structure
 
-- Target Platforms: Raspberry Pi Zero 2W / Orange Pi Zero 2W (ARM64)
-- OS: Raspberry Pi OS Lite 64-bit / Armbian 25.11.2 (Debian 12 Bookworm)
-- libimobiledevice Version: 1.4.0-6-gc4f1118 (GitHub master)
-- Documentation Date: January 21, 2026 (Updated)
+This repository contains:
+1. **Executable installation scripts** - Automated setup for all components
+2. **Pi API Server** (Node.js) - REST API for iOS device communication
+3. **Network management scripts** - WiFi AP/Client mode switching
+4. **Chromium kiosk setup** - Optional fullscreen display
+5. **Comprehensive documentation** - Hardware setup and API reference
 
-**⚠️ CRITICAL:** All libimobiledevice components MUST be built from GitHub source. Do NOT use apt packages. See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for detailed installation instructions including the required libplist commit (2c50f76) to avoid assertion failures with modern iOS devices.
+**Important:** This is now a **complete working system**, not just documentation. It includes executable code, scripts, and a Node.js API server.
 
-### New: iOS Bridge API System
+---
 
-The Raspberry Pi now includes a **portable iOS device bridge system** that extends libimobiledevice functionality over WiFi:
+## Multi-Repository Project
 
-**Components Installed:**
-- **Node.js API Server** (`~/ios-bridge-api/`) - HTTP REST API exposing libimobiledevice commands
-- **Electron.js GUI** (`~/ios-bridge-gui/`) - Touchscreen control interface for 7" displays
-- **WiFi Mode Switching** - Dual mode: AP (portable hotspot) or Client (home network)
-- **Auto-start Services** - Both API and GUI start automatically on boot
+This is part of a three-repository IoT project:
 
-**Key Features:**
-- RESTful endpoints: device info, screenshots, battery status, system logs
-- WiFi AP mode: `RaspberryPi-iOS` (password: raspberry123) at 192.168.50.1
-- WiFi Client mode: Connects to home network for backend sync
-- CORS-enabled for mobile app integration
-- Runs on port 3000 (API) and displays on DISPLAY :0 (GUI)
+1. **raspi-ios-bridge** (this repo) - Raspberry Pi hardware and API server
+2. **ios-bridge-mobile** - Mobile app (Expo/React Native) [to be created]
+3. **ios-bridge-backend** - Backend server (Python FastAPI) [to be created]
 
-**Services:**
-- `ios-bridge-api.service` - Node.js API server
-- `ios-bridge-gui.service` - Electron.js GUI application
-- Both enabled and running
+### System Architecture
 
-**Important:** When testing WiFi mode switching, SSH connectivity will be lost temporarily. Only switch modes when ready to test the complete system.
-
-### New: Chromium Kiosk with CI/CD Deployment
-
-The Raspberry Pi 4 is configured as a **Chromium kiosk** that automatically updates when code is pushed to GitHub:
-
-**Components Installed:**
-- **Chromium Browser** - Fullscreen kiosk mode
-- **Node.js 20 + PM2** - Web server process management
-- **serve** - Static file server on port 3000
-- **xdotool** - Browser automation for auto-refresh
-
-**Architecture:**
+**Offline Mode (Portable):**
 ```
-GitHub Push → GitHub Actions Build → SSH Deploy → PM2 Restart → Chromium Refresh
+Mobile App (WiFi) ←→ Raspberry Pi (AP Mode: 192.168.50.1)
+     ↓                        ↓
+Local Storage          Local Database (SQLite)
 ```
 
-**Key Features:**
-- Automatic deployment from GitHub Actions
-- Password-based SSH deployment (learning setup)
-- PM2 process management with auto-restart
-- Chromium kiosk displays `http://localhost:3000`
-- Auto-refresh via xdotool (F5 key simulation)
-- Survives reboots - kiosk starts automatically
+**Online Mode (Home/Internet):**
+```
+Mobile App (Internet) ←→ Backend API (Cloud) ←→ Raspberry Pi (Client Mode)
+          ↓                      ↓                      ↓
+    Cache/Queue          PostgreSQL/MySQL       Local Database
+                                ↕
+                        Data Synchronization
+```
 
-**System Services:**
-- `kiosk.service` - Chromium kiosk autostart
-- PM2 managed process: `kiosk-app` (serve on port 3000)
+---
 
-**File Locations:**
-- App files: `/home/pi/app/`
-- Kiosk script: `/home/pi/kiosk.sh`
-- Systemd service: `/etc/systemd/system/kiosk.service`
-- PM2 config: `/home/pi/.pm2/`
+## Repository Structure
 
-**Documentation:** See [docs/KIOSK_SETUP.md](docs/KIOSK_SETUP.md) for complete setup guide, GitHub Actions configuration, and troubleshooting.
+```
+raspi-ios-bridge/
+├── README.md                       # Project overview
+├── CLAUDE.md                       # This file - AI guidance
+├── .gitignore
+│
+├── docs/                           # Documentation
+│   ├── README.md                   # Documentation hub
+│   ├── hardware/                   # Hardware setup docs
+│   │   ├── setup-guide.md          # Complete Pi setup
+│   │   └── wifi-modes.md           # WiFi AP/Client modes
+│   └── api/                        # API documentation
+│       └── local-api.md            # REST API reference
+│
+├── pi-setup/                       # Installation scripts
+│   ├── install.sh                  # Master installer
+│   ├── dependencies.sh             # System dependencies
+│   ├── libimobiledevice/           # Build scripts
+│   │   ├── build-all.sh            # Build all components
+│   │   ├── build-libplist.sh
+│   │   ├── build-glue.sh
+│   │   ├── build-libusbmuxd.sh
+│   │   ├── build-libtatsu.sh
+│   │   └── build-libimobiledevice.sh
+│   ├── network/                    # WiFi management
+│   │   ├── setup-ap-mode.sh        # Configure AP
+│   │   ├── setup-client-mode.sh    # Configure client
+│   │   └── switch-mode.sh          # Switch modes
+│   └── kiosk/                      # Chromium kiosk
+│       ├── install-kiosk.sh
+│       ├── kiosk.sh
+│       └── kiosk.service
+│
+├── pi-api/                         # Node.js API server
+│   ├── package.json
+│   ├── server.js                   # Express server
+│   ├── routes/                     # API endpoints
+│   │   ├── device.js               # Device info
+│   │   ├── battery.js              # Battery status
+│   │   ├── screenshot.js           # Screenshots
+│   │   ├── syslog.js               # System logs
+│   │   └── sync.js                 # Data sync
+│   ├── services/                   # Business logic
+│   │   ├── libimobiledevice.js     # idevice wrapper
+│   │   ├── storage.js              # SQLite ops
+│   │   └── sync-queue.js           # Sync management
+│   ├── db/                         # Database
+│   │   ├── schema.sql
+│   │   └── init.js
+│   └── config/                     # Configuration
+│       ├── offline.json
+│       └── online.json
+│
+├── kiosk-app/                      # Chromium kiosk app
+│   ├── package.json
+│   ├── public/
+│   │   └── index.html
+│   └── .github/workflows/
+│       └── deploy-kiosk.yml
+│
+├── config/                         # System configuration
+│   ├── udev/
+│   │   └── 39-usbmuxd.rules        # USB auto-detect
+│   └── systemd/
+│       ├── usbmuxd-override.conf   # usbmuxd service
+│       └── pi-api.service          # API service
+│
+└── examples/                       # Examples
+    └── README.md
+```
+
+---
+
+## System Components
+
+### 1. libimobiledevice 1.4.0
+
+Built from GitHub source with all dependencies:
+- **libplist** (commit 2c50f76) - Critical for iOS 26.2+ compatibility
+- **libimobiledevice-glue** - Utility code
+- **libusbmuxd** - USB multiplexer client
+- **libtatsu** - TSS request handling
+- **libimobiledevice** - Main library with 23 idevice tools
+
+**Installation:**
+- Build location: `~/build/`
+- Install location: `/usr/local/`
+- Automated via: `pi-setup/install.sh`
+
+### 2. Pi API Server (Node.js)
+
+REST API exposing libimobiledevice functionality:
+- **Framework:** Express.js
+- **Port:** 3000
+- **Database:** SQLite
+- **CORS:** Enabled for mobile apps
+
+**Key Endpoints:**
+- `GET /api/device/info` - Device information
+- `GET /api/battery` - Battery status
+- `GET /api/screenshot` - Capture screenshot
+- `GET /api/syslog/stream` - Stream system logs (SSE)
+- `POST /api/sync/trigger` - Trigger backend sync
+
+**Service:** `pi-api.service` (systemd)
+
+### 3. Dual WiFi Modes
+
+**AP Mode (Access Point):**
+- SSID: `RaspberryPi-iOS`
+- Password: `raspberry123`
+- IP: `192.168.50.1`
+- Purpose: Portable offline operation
+
+**Client Mode:**
+- Connects to home/office WiFi
+- DHCP assigned IP
+- Purpose: Internet access and backend sync
+
+**Switching:** `pi-setup/network/switch-mode.sh [ap|client]`
+
+### 4. Chromium Kiosk (Optional)
+
+- Fullscreen Chromium display
+- Displays `http://localhost:3000`
+- Auto-start on boot
+- GitHub Actions auto-deployment
+
+**Service:** `kiosk.service` (systemd)
+
+---
 
 ## Raspberry Pi 4 Connection
 
-**IMPORTANT:** This documentation repository is paired with a live Raspberry Pi 4 system fully configured with Chromium kiosk and libimobiledevice.
+**IMPORTANT:** This repository is paired with a live Raspberry Pi 4 system for testing.
 
 ### SSH Connection Details
 - **Host:** 192.168.1.137
 - **User:** pi
 - **Password:** root
-- **Hostname:** pi
-- **Kernel:** Linux 6.12.47+rpt-rpi-v8 (aarch64)
-- **OS:** Debian GNU/Linux 13 (trixie) - Raspberry Pi OS
 - **Hardware:** Raspberry Pi 4 Model B
+- **OS:** Debian 13 (trixie) - Raspberry Pi OS
+- **Architecture:** ARM64 (aarch64)
+- **Kernel:** 6.12.47+rpt-rpi-v8
 
-### Connecting to the Raspberry Pi
+### Connecting
 
-Using standard SSH:
 ```bash
+# Standard SSH
 ssh pi@192.168.1.137
 # Password: root
-```
 
-Using sshpass (non-interactive):
-```bash
+# Non-interactive
 sshpass -p 'root' ssh pi@192.168.1.137 "command"
 ```
 
-For root access:
-```bash
-sshpass -p 'root' ssh pi@192.168.1.137 "echo 'root' | sudo -S command"
-```
+### System Status (Last Updated: January 21, 2026)
 
-### libimobiledevice Installation Status
-
-**✅ INSTALLED AND TESTED** - Installed January 21, 2026
-
-libimobiledevice 1.4.0 has been successfully built from GitHub source and tested with iPhone iOS 26.2.
-
-**Installed Components:**
-1. ✅ libplist (2.7.0-22-g001a59e) - Commit 2c50f76 (critical for iOS 26.2 compatibility)
-2. ✅ libimobiledevice-glue (1.3.2-3-gd0f6398)
-3. ✅ libusbmuxd (2.1.1-2-gfe5c80a)
-4. ✅ libtatsu (1.0.5-2-g1d5e76d)
-5. ✅ libimobiledevice (1.4.0-6-gc4f1118)
-6. ✅ usbmuxd daemon (1.1.1-51-ge8f7954) - Running and auto-starts
-
-**Installation Locations:**
-- Libraries: `/usr/local/lib`
-- Tools: `/usr/local/bin` (23 idevice tools installed)
-- Daemon: `/usr/local/sbin/usbmuxd`
-
-**System Configuration:**
-- ✅ udev rules: `/etc/udev/rules.d/39-usbmuxd.rules`
-- ✅ systemd service: `/lib/systemd/system/usbmuxd.service`
-- ✅ usbmux group (GID: 985) with user `pi` added
-- ✅ Automatic device detection enabled
-
-**Tested Device:**
-- Device: iPhone (iPhone18,2)
-- iOS Version: 26.2
-- UDID: 00008150-000971D00A20401C
-- Status: Paired and communicating successfully
-- USB: Apple device ID 05ac:12a8
+**Installed and Tested:**
+- ✅ libimobiledevice 1.4.0 (from GitHub source)
+- ✅ usbmuxd daemon (auto-start enabled)
+- ✅ Chromium kiosk (configured)
+- ✅ PM2 process manager (operational)
+- ✅ iPhone iOS 26.2 detection (verified)
 
 **Verified Functionality:**
-- ✅ Device detection (`idevice_id -l`)
-- ✅ Device information retrieval (`ideviceinfo`)
-- ✅ Pairing validation (`idevicepair validate`)
-- ✅ Device name query (`idevicename`)
-- ✅ Battery status (`ideviceinfo -q com.apple.mobile.battery`)
-- ⚠️ Screenshot requires developer disk image (expected limitation)
-- ⚠️ idevicesyslog has symbol lookup error (minor, other tools work)
+- Device detection: `idevice_id -l` ✅
+- Device info: `ideviceinfo` ✅
+- Battery status: `ideviceinfo -q com.apple.mobile.battery` ✅
+- Pairing: `idevicepair validate` ✅
 
-### System Resources
-- **Hardware:** Raspberry Pi 4 Model B
-- **Architecture:** ARM64 (aarch64)
-- **OS:** Debian GNU/Linux 13 (trixie)
-- **Kernel:** 6.12.47+rpt-rpi-v8
+### Testing Commands
 
-### System State (Last Updated: January 21, 2026)
-
-**Current Status:** Fully configured with Chromium kiosk and libimobiledevice
-
-**Installed Systems:**
-1. ✅ Chromium Kiosk - Auto-starts on boot, displays `http://localhost:3000`
-2. ✅ PM2 Web Server - Serves kiosk content, survives reboots
-3. ✅ GitHub Actions CI/CD - Ready for deployment (requires GitHub secrets configuration)
-4. ✅ libimobiledevice 1.4.0 - Full iOS device communication suite
-5. ✅ usbmuxd - Automatic iPhone detection and pairing
-
-**Verified Capabilities:**
-- Chromium kiosk boots in ~10-20 seconds (minimal X11 setup)
-- iPhone iOS 26.2 detection and communication working
-- PM2 process management operational
-- Ready for application deployment via GitHub push
-
-### Common Remote Commands
-
-**System Status:**
 ```bash
-# Check system information
-sshpass -p 'root' ssh pi@192.168.1.137 "uname -a"
-
-# Check available disk space
-sshpass -p 'root' ssh pi@192.168.1.137 "df -h"
-
-# View system status
-sshpass -p 'root' ssh pi@192.168.1.137 "systemctl status"
-
-# Update system packages
-sshpass -p 'root' ssh pi@192.168.1.137 "sudo apt update && sudo apt upgrade -y"
-```
-
-**iOS Device Commands:**
-```bash
-# List connected iOS devices (returns UDID)
+# iOS Device Commands
 sshpass -p 'root' ssh pi@192.168.1.137 "idevice_id -l"
-
-# Get full device information
 sshpass -p 'root' ssh pi@192.168.1.137 "ideviceinfo"
-
-# Get device name
 sshpass -p 'root' ssh pi@192.168.1.137 "idevicename"
 
-# Get battery status
-sshpass -p 'root' ssh pi@192.168.1.137 "ideviceinfo -q com.apple.mobile.battery"
-
-# Check device pairing status
-sshpass -p 'root' ssh pi@192.168.1.137 "idevicepair validate"
-```
-
-**Service Management:**
-```bash
-# Check usbmuxd service status
+# Service Status
 sshpass -p 'root' ssh pi@192.168.1.137 "systemctl status usbmuxd"
-
-# View usbmuxd logs
-sshpass -p 'root' ssh pi@192.168.1.137 "journalctl -u usbmuxd -n 20"
-
-# Check PM2 processes
+sshpass -p 'root' ssh pi@192.168.1.137 "systemctl status pi-api"
 sshpass -p 'root' ssh pi@192.168.1.137 "pm2 status"
 
-# View Chromium kiosk status (via X display)
-sshpass -p 'root' ssh pi@192.168.1.137 "DISPLAY=:0 xdotool search --class chromium"
+# API Testing
+sshpass -p 'root' ssh pi@192.168.1.137 "curl http://localhost:3000/health"
 ```
 
-### Testing Changes
+---
 
-When updating documentation that includes commands or configurations:
-1. SSH into the Raspberry Pi
-2. Test the commands/configurations on the actual system
-3. Verify the output matches documentation
-4. Update documentation with accurate results
+## Working with This Repository
 
-### Security Note
+### Installation Scripts
 
-The password "root" is simple and should only be used on trusted local networks. For production use, consider using SSH key-based authentication and a stronger password.
+When modifying `pi-setup/` scripts:
+1. **Test on the actual Pi** - Always verify scripts work on hardware
+2. **Maintain build order** - libimobiledevice dependencies must build in sequence
+3. **Keep scripts idempotent** - Scripts should handle repeated runs
+4. **Add verification steps** - Include checks to confirm success
 
-## Documentation Structure
+**Critical:** libplist MUST use commit 2c50f76 for iOS 26.2+ compatibility.
 
-The repository contains five main documentation files in the `/docs` directory:
+### Pi API Server
 
-- **docs/README.md** - Overview and navigation guide
-- **docs/SETUP_GUIDE.md** - Complete installation and configuration guide (17KB, comprehensive)
-- **docs/QUICK_REFERENCE.md** - Fast command lookup (2.3KB)
-- **docs/CONFIG_FILES.md** - Configuration files and setup scripts (3.8KB)
-- **docs/KIOSK_SETUP.md** - Chromium kiosk and CI/CD deployment guide
+When modifying `pi-api/`:
+1. **Follow Express patterns** - Use existing route structure
+2. **Wrap idevice commands** - Use `services/libimobiledevice.js` wrapper
+3. **Handle errors gracefully** - iOS devices can disconnect unexpectedly
+4. **Store data in SQLite** - Use `services/storage.js` for persistence
+5. **Queue offline operations** - Use `services/sync-queue.js`
 
-## Key System Components Documented
+**Testing:**
+```bash
+cd pi-api
+npm install
+node db/init.js  # Initialize database
+node server.js   # Start server
+curl http://localhost:3000/health
+```
 
-### Build Process
-The documentation covers building from source in this order:
-1. libplist (2.7.0) - Property list handling
-2. libimobiledevice-glue (1.3.2) - Utility code
-3. libusbmuxd (2.1.1) - USB multiplexer client
-4. libtatsu (1.0.5) - TSS request handling
-5. libimobiledevice (1.4.0) - Main library
+### Network Scripts
 
-**Build location:** `~/build/` (on Raspberry Pi)
-**Install prefix:** `/usr/local`
+When modifying `pi-setup/network/`:
+1. **Test mode switching** - Verify both AP and Client modes work
+2. **Preserve configurations** - Keep `.ap` and `.client` suffix files
+3. **Handle service conflicts** - Ensure clean service stops/starts
+4. **Test SSH connectivity** - Mode switching changes IP addresses
 
-### System Configuration
-Critical configuration files documented:
-- `/etc/udev/rules.d/39-usbmuxd.rules` - Auto-detect Apple devices (vendor ID: 05ac)
-- `/etc/systemd/system/usbmuxd.service.d/override.conf` - Enable boot-time startup
-- Group: `usbmux` (GID: 985) with members: usbmux, pi
+**Warning:** SSH connection will be lost when switching modes.
 
-### Tools Installed
-21 idevice tools documented, including:
-- `idevice_id -l` - List devices
-- `ideviceinfo` - Device information
-- `idevicescreenshot` - Capture screenshots
-- `idevicesyslog` - View system logs
-- `idevicebackup2` - Backup/restore
-- And 16 more specialized tools
+### Documentation
 
-## Common Documentation Tasks
+When modifying `docs/`:
+1. **Keep hardware docs in `docs/hardware/`** - Setup guides, WiFi modes
+2. **Keep API docs in `docs/api/`** - REST API reference
+3. **Update `docs/README.md`** - Maintain navigation hub
+4. **Test commands** - Verify all commands work on actual Pi
+5. **Include examples** - Provide curl examples for API endpoints
 
-### Updating Installation Instructions
-When modifying docs/SETUP_GUIDE.md:
-- Maintain the build order (dependencies first)
-- Keep version numbers consistent throughout
-- Update "Last Updated" date at bottom
-- Ensure troubleshooting section addresses known issues
+**Old Documentation:** The old `SETUP_GUIDE.md`, `QUICK_REFERENCE.md`, `CONFIG_FILES.md`, and `KIOSK_SETUP.md` are deprecated. Use new consolidated docs.
 
-### Adding New Commands
-When adding to docs/QUICK_REFERENCE.md:
-- Keep commands concise (one-liners preferred)
-- Group by category (Detection, Information, Tools, etc.)
-- Include brief inline comments for clarity
-- Maintain consistent formatting
+---
 
-### Configuration Changes
-When updating docs/CONFIG_FILES.md:
-- Include both the file content AND the command to apply it
-- Use heredoc syntax for multi-line configurations
-- Test commands work exactly as written
-- Provide reload/restart commands where needed
+## Key Technical Details
 
-## System Architecture Notes
+### libimobiledevice Build Order
 
-### Automatic Device Detection Flow
-1. systemd starts `usbmuxd.service` on boot
-2. udev monitors USB bus for Apple devices (vendor ID: 05ac)
-3. When iPhone plugged in, udev applies permissions (0660, group: usbmux)
-4. usbmuxd establishes connection
-5. All idevice tools can now access device
+**CRITICAL:** Build in this exact order:
+1. libplist (commit 2c50f76) ← Required commit!
+2. libimobiledevice-glue
+3. libusbmuxd
+4. libtatsu
+5. libimobiledevice
 
-### Plug/Unplug Resilience
-The udev rules use `ATTR{idVendor}=="05ac"` (vendor match) rather than specific device numbers, so they work regardless of which device number (/dev/bus/usb/001/XXX) the iPhone gets assigned. This solves the common issue where permissions break after replug.
-
-## Important Technical Details
+**Why commit 2c50f76?** Fixes assertion failures with iOS 26.2+ devices.
 
 ### Device Requirements
-- iPhone must be **unlocked** and **trusted** (paired)
-- Uses Apple's official protocols (no jailbreak needed)
-- Works over USB only (not WiFi)
+
+- iPhone/iPad must be **unlocked**
+- Device must be **trusted** (tap "Trust This Computer")
+- Uses Apple's official protocols (no jailbreak)
+- USB connection only (not WiFi)
 
 ### Permission Model
-- usbmuxd daemon runs as `usbmux:usbmux`
+
+- usbmuxd runs as `usbmux:usbmux`
 - USB devices assigned group `usbmux` with mode `0660`
 - Users in `usbmux` group can access devices
-- Requires logout/login after group membership changes
+- **Requires logout/login** after adding user to group
 
-### Build Dependencies
-System packages required (from apt):
-- build-essential, git, autoconf, automake, libtool, pkg-config
-- libssl-dev (OpenSSL for SSL/TLS)
-- libusb-1.0-0-dev (USB device access)
-- usbmuxd (multiplexer daemon)
-- python3-dev (headers, optional)
-- libcurl4-openssl-dev (required by libtatsu)
+### udev Rules
 
-## Troubleshooting Reference
+File: `/etc/udev/rules.d/39-usbmuxd.rules`
+- Matches Apple devices by vendor ID: `05ac`
+- Sets permissions automatically
+- Works regardless of device number (plug/unplug resilient)
 
-Common issues documented in docs/SETUP_GUIDE.md:
+---
 
-1. **USB Permission Errors** - Fix: reload udev rules, restart usbmuxd, replug device
-2. **Device Not Detected After Replug** - Should be automatic; if fails, check udev rules
-3. **usbmuxd Not Starting on Boot** - Fix: create systemd override, enable service
-4. **Missing Dependencies** - Follow build order strictly
-5. **libcurl Not Found** - Install libcurl4-openssl-dev before building libtatsu
+## Common Tasks
 
-## Performance Notes (Raspberry Pi Zero 2W)
+### Update Installation Script
 
-- Device detection: Instant
-- ideviceinfo query: <1 second
-- idevicescreenshot: 1-2 seconds
-- Build time: ~15 minutes total
-- Disk usage: ~50MB source + ~10MB installed
-
-## Maintenance Procedures
-
-### Updating libimobiledevice
 ```bash
-cd ~/build/libimobiledevice
-git pull
-git checkout [new-version-tag]
-./autogen.sh
-make clean
-make
-sudo make install
-sudo ldconfig
+# Edit script
+nano pi-setup/install.sh
+
+# Test on Pi
+sshpass -p 'root' ssh pi@192.168.1.137 "cd /home/pi/raspi-ios-bridge && git pull"
+sshpass -p 'root' ssh pi@192.168.1.137 "sudo /home/pi/raspi-ios-bridge/pi-setup/install.sh"
 ```
 
-### Backing Up Configuration
-Essential files to backup:
-- /etc/udev/rules.d/39-usbmuxd.rules
-- /etc/systemd/system/usbmuxd.service.d/override.conf
+### Add New API Endpoint
 
-Both are documented with full content in docs/CONFIG_FILES.md for easy restoration.
+1. Create route in `pi-api/routes/`
+2. Add business logic to `pi-api/services/` if needed
+3. Register route in `pi-api/server.js`
+4. Document in `docs/api/local-api.md`
+5. Test with curl
 
-## Documentation Style Guidelines
+### Update Documentation
 
-### Formatting Conventions
-- Use fenced code blocks with bash syntax highlighting
-- Include command outputs as comments or in separate blocks
-- Provide full file paths for all configuration files
-- Use emoji sparingly (only in docs/README.md for visual navigation)
+1. Edit relevant markdown file in `docs/`
+2. Test commands on actual Pi
+3. Update `docs/README.md` if adding new docs
+4. Commit with clear message
 
-### Command Documentation
-- Always show complete commands (no placeholders like [device-id])
-- Include verification commands after making changes
-- Provide both the action and how to check it worked
-- Group related commands together with context
+---
 
-### Version References
-When documenting versions, include:
-- Version number (e.g., 1.4.0)
-- Git commit hash if from master (e.g., 2.7.0-22-g001a59e)
-- Build date
-- Platform (ARM64, Raspberry Pi Zero 2W)
+## Troubleshooting Guide
 
-## Resources and References
+### Device Not Detected
 
-- Official site: https://libimobiledevice.org/
-- Main repository: https://github.com/libimobiledevice/libimobiledevice
-- Related projects: libplist, libusbmuxd, libimobiledevice-glue, libtatsu
+```bash
+# Restart usbmuxd
+sudo systemctl restart usbmuxd
 
-## File Organization
+# Check device is plugged in
+lsusb | grep Apple
 
-```
-raspi-libimobiledevice/
-├── CLAUDE.md              # This file - guidance for Claude Code
-├── examples/              # Example configurations for deployment
-│   ├── github-workflow.yml # GitHub Actions deployment template
-│   └── test-page.html     # Test page for kiosk verification
-└── docs/
-    ├── README.md          # Entry point, overview, navigation
-    ├── SETUP_GUIDE.md     # Complete setup, troubleshooting, reference
-    ├── QUICK_REFERENCE.md # Fast command lookup for daily use
-    ├── CONFIG_FILES.md    # Copy-paste configs and scripts
-    └── KIOSK_SETUP.md     # Chromium kiosk and CI/CD guide
+# Verify udev rules
+ls -l /etc/udev/rules.d/39-usbmuxd.rules
 ```
 
-Each file serves a specific audience:
-- docs/README.md: First-time visitors
-- docs/SETUP_GUIDE.md: People doing installation
-- docs/QUICK_REFERENCE.md: Daily users
-- docs/CONFIG_FILES.md: System replication/backup
-- docs/KIOSK_SETUP.md: Kiosk and CI/CD setup
+### API Not Responding
+
+```bash
+# Check service
+systemctl status pi-api
+
+# View logs
+journalctl -u pi-api -n 50
+
+# Restart service
+sudo systemctl restart pi-api
+```
+
+### WiFi Mode Issues
+
+```bash
+# Check current services
+systemctl status hostapd      # AP mode
+systemctl status wpa_supplicant  # Client mode
+
+# Switch mode
+cd ~/raspi-ios-bridge/pi-setup/network
+sudo ./switch-mode.sh [ap|client]
+```
+
+---
+
+## Development Workflow
+
+### Making Changes
+
+1. **Clone repository** (if not already)
+   ```bash
+   git clone https://github.com/yourusername/raspi-ios-bridge.git
+   cd raspi-ios-bridge
+   ```
+
+2. **Make changes locally**
+   - Edit scripts, API code, or documentation
+   - Test locally if possible
+
+3. **Push to Pi for testing**
+   ```bash
+   git add .
+   git commit -m "Description of changes"
+   git push
+
+   # On Pi
+   ssh pi@192.168.1.137
+   cd ~/raspi-ios-bridge
+   git pull
+   ```
+
+4. **Test on Pi**
+   - Run installation scripts
+   - Test API endpoints
+   - Verify services
+   - Test with actual iPhone
+
+5. **Update documentation**
+   - Document any new features
+   - Update troubleshooting if needed
+   - Add examples
+
+---
+
+## Resources
+
+- **libimobiledevice:** https://libimobiledevice.org/
+- **GitHub:** https://github.com/libimobiledevice/libimobiledevice
+- **Documentation:** [docs/README.md](docs/README.md)
+
+---
+
+## Important Notes
+
+1. **Always test on real hardware** - Raspberry Pi behavior differs from desktop
+2. **Verify iOS device compatibility** - Test with multiple iOS versions if possible
+3. **Document breaking changes** - Update troubleshooting section
+4. **Keep passwords secure** - Current Pi password ("root") is for development only
+5. **Backup configurations** - Before major changes, backup udev rules and systemd services
+
+---
+
+**Last Updated:** January 21, 2026
+**Repository Version:** 1.0.0 (Restructured)

@@ -1,0 +1,27 @@
+{
+  "mode": "offline",
+  "description": "Offline mode configuration - AP mode with local-only operation",
+  "api": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "cors": {
+      "enabled": true,
+      "origins": ["*"]
+    }
+  },
+  "network": {
+    "wifi_mode": "ap",
+    "ap_ssid": "RaspberryPi-iOS",
+    "ap_ip": "192.168.50.1"
+  },
+  "sync": {
+    "enabled": false,
+    "backend_url": null
+  },
+  "storage": {
+    "database": "./db/pi-bridge.db",
+    "screenshots_dir": "./screenshots",
+    "max_screenshots": 100,
+    "auto_cleanup": true
+  }
+}

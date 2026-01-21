@@ -1,0 +1,19 @@
+{
+  "name": "pi-ios-bridge-kiosk",
+  "version": "1.0.0",
+  "description": "Chromium Kiosk Display for Raspberry Pi iOS Bridge",
+  "scripts": {
+    "dev": "npx serve public -l 3000",
+    "start": "npx serve public -l 3000 -s"
+  },
+  "keywords": [
+    "kiosk",
+    "raspberry-pi",
+    "chromium"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "serve": "^14.2.1"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "mode": "online",
+  "description": "Online mode configuration - Client mode with backend sync",
+  "api": {
+    "port": 3000,
+    "host": "0.0.0.0",
+    "cors": {
+      "enabled": true,
+      "origins": ["https://yourdomain.com", "https://app.yourdomain.com"]
+    }
+  },
+  "network": {
+    "wifi_mode": "client"
+  },
+  "sync": {
+    "enabled": true,
+    "backend_url": "https://api.yourdomain.com",
+    "auto_sync_interval": 30,
+    "retry_attempts": 5,
+    "retry_delay": 60
+  },
+  "storage": {
+    "database": "./db/pi-bridge.db",
+    "screenshots_dir": "./screenshots",
+    "max_screenshots": 500,
+    "auto_cleanup": true,
+    "cleanup_after_sync": true
+  }
+}

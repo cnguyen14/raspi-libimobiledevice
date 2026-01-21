@@ -1,0 +1,11 @@
+# udev rules for iOS devices (Apple Inc.)
+# Automatically detected via vendor ID 05ac
+
+# iPhone, iPad, iPod Touch devices
+SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="12[0-9a-f][0-9a-f]", MODE="0660", GROUP="usbmux"
+
+# Older iOS devices
+SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ATTR{idProduct}=="129[0-9a-f]", MODE="0660", GROUP="usbmux"
+
+# Reload usbmuxd when device is plugged in
+SUBSYSTEM=="usb", ATTR{idVendor}=="05ac", ACTION=="add", RUN+="/bin/systemctl restart usbmuxd.service"

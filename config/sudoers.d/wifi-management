@@ -1,0 +1,43 @@
+# Sudoers configuration for WiFi management
+# Allows pi user to run network commands without password
+# Install: sudo cp wifi-management /etc/sudoers.d/ && sudo chmod 0440 /etc/sudoers.d/wifi-management
+
+# WiFi scanning
+pi ALL=(ALL) NOPASSWD: /usr/sbin/iwlist wlan0 scan
+pi ALL=(ALL) NOPASSWD: /sbin/iwgetid
+
+# Network interface management
+pi ALL=(ALL) NOPASSWD: /sbin/ip addr show wlan0
+pi ALL=(ALL) NOPASSWD: /sbin/ip link set wlan0 *
+
+# Service management for WiFi
+pi ALL=(ALL) NOPASSWD: /bin/systemctl start hostapd
+pi ALL=(ALL) NOPASSWD: /bin/systemctl stop hostapd
+pi ALL=(ALL) NOPASSWD: /bin/systemctl restart hostapd
+pi ALL=(ALL) NOPASSWD: /bin/systemctl status hostapd
+pi ALL=(ALL) NOPASSWD: /bin/systemctl is-active hostapd
+
+pi ALL=(ALL) NOPASSWD: /bin/systemctl start dnsmasq
+pi ALL=(ALL) NOPASSWD: /bin/systemctl stop dnsmasq
+pi ALL=(ALL) NOPASSWD: /bin/systemctl restart dnsmasq
+pi ALL=(ALL) NOPASSWD: /bin/systemctl status dnsmasq
+
+pi ALL=(ALL) NOPASSWD: /bin/systemctl start wpa_supplicant
+pi ALL=(ALL) NOPASSWD: /bin/systemctl stop wpa_supplicant
+pi ALL=(ALL) NOPASSWD: /bin/systemctl restart wpa_supplicant
+pi ALL=(ALL) NOPASSWD: /bin/systemctl status wpa_supplicant
+pi ALL=(ALL) NOPASSWD: /bin/systemctl is-active wpa_supplicant
+
+pi ALL=(ALL) NOPASSWD: /bin/systemctl start dhcpcd
+pi ALL=(ALL) NOPASSWD: /bin/systemctl stop dhcpcd
+pi ALL=(ALL) NOPASSWD: /bin/systemctl restart dhcpcd
+
+# WiFi management scripts
+pi ALL=(ALL) NOPASSWD: /home/pi/raspi-ios-bridge/pi-setup/network/switch-mode.sh *
+pi ALL=(ALL) NOPASSWD: /home/pi/raspi-ios-bridge/pi-setup/network/setup-ap-mode.sh
+pi ALL=(ALL) NOPASSWD: /home/pi/raspi-ios-bridge/pi-setup/network/setup-client-mode.sh *
+pi ALL=(ALL) NOPASSWD: /home/pi/raspi-ios-bridge/pi-setup/network/wifi-helper.sh *
+
+# Configuration file access
+pi ALL=(ALL) NOPASSWD: /bin/grep * /etc/wpa_supplicant/wpa_supplicant.conf
+pi ALL=(ALL) NOPASSWD: /bin/cat /etc/wpa_supplicant/wpa_supplicant.conf

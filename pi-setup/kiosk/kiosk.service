@@ -1,0 +1,16 @@
+[Unit]
+Description=Chromium Kiosk
+After=graphical.target network.target
+
+[Service]
+Type=simple
+User=pi
+Environment=DISPLAY=:0
+Environment=XAUTHORITY=/home/pi/.Xauthority
+ExecStartPre=/bin/sleep 5
+ExecStart=/home/pi/raspi-ios-bridge/pi-setup/kiosk/kiosk.sh
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=graphical.target

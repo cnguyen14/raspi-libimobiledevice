@@ -1,222 +1,354 @@
-# Raspberry Pi libimobiledevice Documentation
+# Raspberry Pi iOS Bridge Documentation
 
-This directory contains comprehensive documentation for setting up and using libimobiledevice 1.4.0 on Raspberry Pi Zero 2W.
+Complete documentation for setting up and using the Raspberry Pi iOS Bridge system with libimobiledevice 1.4.0.
 
-## Documentation Files
+## 📖 Documentation Overview
 
-### 📘 [SETUP_GUIDE.md](SETUP_GUIDE.md)
-**Complete installation and configuration guide**
+This repository contains comprehensive guides for building a complete iOS device communication system on Raspberry Pi.
 
-The main documentation covering:
-- System requirements and prerequisites
-- Step-by-step build instructions for all dependencies
-- Configuration of udev rules and systemd services
-- Troubleshooting common issues
-- Usage examples for all tools
-- Reference information
+### Quick Start
 
-**Use this for:** First-time setup, understanding the system, troubleshooting
+**New to this project?** Start here:
+1. [Complete Setup Guide](hardware/setup-guide.md) - Install everything from scratch
+2. [WiFi Modes Guide](hardware/wifi-modes.md) - Configure AP and Client modes
+3. [Local API Documentation](api/local-api.md) - Use the REST API
 
----
+### What is This?
 
-### ⚡ [QUICK_REFERENCE.md](QUICK_REFERENCE.md)
-**Quick command reference**
+The Raspberry Pi iOS Bridge is a complete system that enables:
+- **iOS Device Communication** - Connect iPhone/iPad via USB
+- **Dual WiFi Modes** - Portable hotspot (offline) or home network (online)
+- **REST API** - HTTP endpoints for device info, screenshots, logs, battery status
+- **Data Sync** - Queue data offline, sync when online
+- **Chromium Kiosk** - Optional fullscreen display
 
-Fast lookup guide with:
-- Most commonly used commands
-- Device detection and info queries
-- Service management commands
-- Quick troubleshooting steps
-- File locations
-
-**Use this for:** Daily usage, quick command lookup
+**Use Cases:**
+- Portable iOS device testing
+- Field data collection
+- Automated device monitoring
+- Demo/kiosk applications
 
 ---
 
-### ⚙️ [CONFIG_FILES.md](CONFIG_FILES.md)
-**Configuration files and setup scripts**
+## 📚 Documentation Structure
 
-Contains:
-- Complete udev rules file
-- systemd service override configuration
-- Group setup commands
-- Ready-to-use setup script for replication
+### Hardware Setup
 
-**Use this for:** Replicating setup on another system, backup reference
+- **[Complete Setup Guide](hardware/setup-guide.md)** ⭐ START HERE
+  - System prerequisites
+  - Automated installation
+  - Manual installation steps
+  - Post-installation configuration
+  - Verification and testing
+  - Comprehensive troubleshooting
 
----
+- **[WiFi Modes Guide](hardware/wifi-modes.md)**
+  - Access Point (AP) mode configuration
+  - Client mode configuration
+  - Mode switching procedures
+  - Advanced networking configuration
+  - Troubleshooting network issues
 
-### 🌐 [iOS Bridge API](../../../pi/ios-bridge-api/README.md)
-**Network API for iOS device communication**
+### API Documentation
 
-HTTP REST API server that exposes libimobiledevice functionality over WiFi:
-- RESTful endpoints for device info, screenshots, battery status, logs
-- Dual WiFi mode: AP mode (portable) or Client mode (home network)
-- Electron.js GUI for touchscreen control (7" display)
-- Auto-start services with systemd
-- CORS-enabled for mobile app integration
-
-**Use this for:** Building mobile apps that communicate with iOS devices through the Raspberry Pi
-
-**Location:** `~/ios-bridge-api/` on Raspberry Pi
-
----
-
-## Quick Start
-
-### If You're Setting Up for the First Time
-1. Read [SETUP_GUIDE.md](SETUP_GUIDE.md)
-2. Follow the installation steps in order
-3. Configure using the examples in [CONFIG_FILES.md](CONFIG_FILES.md)
-4. Keep [QUICK_REFERENCE.md](QUICK_REFERENCE.md) handy for daily use
-
-### If You Already Have It Set Up
-- Use [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for command lookups
-- Refer to [SETUP_GUIDE.md](SETUP_GUIDE.md) Troubleshooting section if issues arise
+- **[Local API Documentation](api/local-api.md)**
+  - Complete REST API reference
+  - All endpoints with examples
+  - Request/response formats
+  - Mobile app integration guide
+  - Testing procedures
 
 ---
 
-## System Information
+## 🚀 Quick Installation
 
-**Target Device:** Raspberry Pi Zero 2W / Orange Pi Zero 2W
-**OS:** Raspberry Pi OS Lite / Armbian 64-bit (Debian 12/13)
-**libimobiledevice Version:** 1.4.0
-**Setup Date:** January 19, 2026
+### Prerequisites
+- Raspberry Pi Zero 2W, Pi 4, or compatible
+- Raspberry Pi OS Lite 64-bit
+- iOS device with USB cable
 
-**Orange Pi Users:** GPU acceleration is **required** for optimal GUI performance. See [CONFIG_FILES.md](CONFIG_FILES.md#gpu-activation-orange-pi--armbian) for setup instructions.
+### Installation (Automated)
 
----
+```bash
+# Clone repository
+cd ~
+git clone https://github.com/yourusername/raspi-ios-bridge.git
+cd raspi-ios-bridge
 
-## What is libimobiledevice?
+# Run installer
+cd pi-setup
+sudo ./install.sh
 
-libimobiledevice is a cross-platform software library that enables communication with iOS devices (iPhone, iPad, iPod Touch) without needing to jailbreak them. It provides:
+# Reboot
+sudo reboot
+```
 
-- Device information retrieval
-- Backup and restore functionality
-- File system access
-- Screenshot capture
-- System log viewing
-- And much more...
+Installation takes ~15-20 minutes on Raspberry Pi 4.
 
-All tools work over USB connection and respect Apple's security protocols, requiring the device to be unlocked and trusted.
+### Verification
 
----
-
-## Key Features of This Setup
-
-✅ **Automatic Device Detection** - Plug and play, works every time
-✅ **Persistent Configuration** - Survives reboots and system updates
-✅ **Multi-Device Support** - Handle multiple iOS devices simultaneously
-✅ **Plug/Unplug Resilient** - Works regardless of device number changes
-✅ **Auto-Start on Boot** - usbmuxd service starts automatically
-✅ **Complete Tool Suite** - All 21 idevice tools included
-✅ **Network API** - HTTP REST API for remote access (Node.js/Express)
-✅ **Dual WiFi Mode** - AP mode (portable) or Client mode (home network)
-✅ **Touchscreen GUI** - Chromium kiosk mode control interface for 7" displays
-✅ **Mobile-Ready** - CORS-enabled for Android/iOS app integration
-✅ **GPU Acceleration** - Mali G31 hardware acceleration (Orange Pi Zero 2W)
-
----
-
-## Most Common Commands
-
-### Direct Device Access (libimobiledevice)
 ```bash
 # List connected devices
 idevice_id -l
 
-# Get device information
-ideviceinfo -s
+# Get device info
+ideviceinfo
 
-# Take a screenshot
-idevicescreenshot
-
-# View device logs
-idevicesyslog
-
-# Check service status
-systemctl status usbmuxd
+# Test API
+curl http://localhost:3000/health
 ```
 
-### Network API Access (iOS Bridge)
-```bash
-# Check API status
-curl http://localhost:3000/api/health
+**Detailed instructions:** See [Complete Setup Guide](hardware/setup-guide.md)
 
-# Get device info via API
+---
+
+## 🏗️ System Architecture
+
+### Components
+
+**1. libimobiledevice 1.4.0**
+- Built from GitHub source
+- 5 libraries + 23 idevice tools
+- Automatic USB device detection
+- Critical: Uses libplist commit 2c50f76 for iOS 26.2+ support
+
+**2. Pi API Server (Node.js)**
+- REST API on port 3000
+- SQLite local database
+- Offline operation queue
+- CORS-enabled for mobile apps
+
+**3. Dual WiFi Modes**
+- **AP Mode:** Portable hotspot (`RaspberryPi-iOS` @ 192.168.50.1)
+- **Client Mode:** Home WiFi with internet access
+- Easy mode switching
+
+**4. Chromium Kiosk (Optional)**
+- Fullscreen display
+- Auto-start on boot
+- GitHub Actions deployment
+
+### Data Flow
+
+**Offline Mode (Portable):**
+```
+iPhone → USB → Raspberry Pi (AP Mode) → Mobile App (WiFi)
+                    ↓
+              Local SQLite DB
+```
+
+**Online Mode (Synced):**
+```
+iPhone → USB → Raspberry Pi (Client Mode) → Backend API
+                    ↓                             ↓
+              Local Queue                   Cloud Database
+                    ↓_____________________________↑
+                           Sync Queue
+```
+
+---
+
+## 📱 Mobile App Integration
+
+The Pi exposes a REST API for mobile apps to connect in both modes:
+
+**Offline (AP Mode):**
+```javascript
+const API_URL = 'http://192.168.50.1:3000';
+```
+
+**Online (Internet):**
+```javascript
+const API_URL = 'https://api.yourdomain.com';
+```
+
+**Auto-detect Mode:**
+```javascript
+import NetInfo from '@react-native-community/netinfo';
+
+const state = await NetInfo.fetch();
+if (state.details?.ssid === 'RaspberryPi-iOS') {
+  // Use Pi local API
+} else {
+  // Use backend API
+}
+```
+
+See [Local API Documentation](api/local-api.md) for complete endpoint reference.
+
+---
+
+## 🔧 Common Commands
+
+### Device Management
+```bash
+# List devices
+idevice_id -l
+
+# Get device info
+ideviceinfo
+
+# Get device name
+idevicename
+
+# Battery status
+ideviceinfo -q com.apple.mobile.battery
+
+# Check pairing
+idevicepair validate
+```
+
+### Service Management
+```bash
+# Check services
+systemctl status usbmuxd
+systemctl status pi-api
+
+# Restart services
+sudo systemctl restart usbmuxd
+sudo systemctl restart pi-api
+
+# View logs
+journalctl -u pi-api -f
+```
+
+### WiFi Modes
+```bash
+cd ~/raspi-ios-bridge/pi-setup/network
+
+# Switch to AP mode (portable)
+sudo ./switch-mode.sh ap
+
+# Switch to client mode (home network)
+sudo ./switch-mode.sh client
+```
+
+### API Testing
+```bash
+# Health check
+curl http://localhost:3000/health
+
+# Device info
 curl http://localhost:3000/api/device/info
 
-# Get battery status
-curl http://localhost:3000/api/device/battery
+# Battery
+curl http://localhost:3000/api/battery
 
-# Check WiFi mode
-curl http://localhost:3000/api/wifi/status
-
-# Manage API service
-sudo systemctl status ios-bridge-api.service
-```
-
-See [QUICK_REFERENCE.md](QUICK_REFERENCE.md) for more commands and [iOS Bridge API README](../../../pi/ios-bridge-api/README.md) for complete API documentation.
-
----
-
-## Troubleshooting
-
-If you encounter issues:
-
-1. Check [SETUP_GUIDE.md - Troubleshooting Section](SETUP_GUIDE.md#troubleshooting)
-2. Use [QUICK_REFERENCE.md - Troubleshooting](QUICK_REFERENCE.md#troubleshooting)
-3. Verify configurations match [CONFIG_FILES.md](CONFIG_FILES.md)
-
-Common issues and solutions are well-documented in the guides.
-
----
-
-## File Structure
-
-```
-raspi-libimobiledevice/
-├── README.md                  # This file - overview and index
-├── SETUP_GUIDE.md            # Complete setup and reference guide
-├── QUICK_REFERENCE.md        # Quick command reference
-└── CONFIG_FILES.md           # Configuration files and scripts
+# Screenshot
+curl http://localhost:3000/api/screenshot > screenshot.png
 ```
 
 ---
 
-## Additional Resources
+## 🛠️ Troubleshooting
 
-- **libimobiledevice Project:** https://libimobiledevice.org/
+### Quick Fixes
+
+**Device not detected:**
+```bash
+sudo systemctl restart usbmuxd
+# Ensure device is unlocked and trusted
+```
+
+**Permission errors:**
+```bash
+sudo usermod -a -G usbmux $USER
+logout
+# Log back in
+```
+
+**API not responding:**
+```bash
+sudo systemctl restart pi-api
+journalctl -u pi-api -n 50
+```
+
+**WiFi issues:**
+```bash
+systemctl status hostapd    # AP mode
+systemctl status wpa_supplicant  # Client mode
+```
+
+**Detailed troubleshooting:** See [Complete Setup Guide - Troubleshooting](hardware/setup-guide.md#troubleshooting)
+
+---
+
+## 📋 Checklist
+
+### Initial Setup
+- [ ] Raspberry Pi OS installed
+- [ ] Internet connection available
+- [ ] Repository cloned
+- [ ] Installation script completed
+- [ ] System rebooted
+- [ ] Device detected (`idevice_id -l`)
+- [ ] API responding (`curl localhost:3000/health`)
+
+### WiFi Configuration
+- [ ] AP mode configured
+- [ ] Client mode configured
+- [ ] Can switch between modes
+- [ ] Mobile device can connect to AP
+- [ ] Pi can connect to home WiFi
+
+### Testing
+- [ ] Device info retrieved
+- [ ] Battery status retrieved
+- [ ] Screenshot captured
+- [ ] API endpoints working
+- [ ] Sync queue functional (online mode)
+
+---
+
+## 🌐 Additional Resources
+
+### Related Repositories
+
+This is part of a multi-repository project:
+
+1. **raspi-ios-bridge** (this repo) - Raspberry Pi hardware setup
+2. **ios-bridge-mobile** - Mobile app (Expo/React Native)
+3. **ios-bridge-backend** - Backend API (Python FastAPI)
+
+### External Links
+
+- **libimobiledevice:** https://libimobiledevice.org/
 - **GitHub Repository:** https://github.com/libimobiledevice/libimobiledevice
-- **Issue Tracker:** Report bugs on GitHub
+- **Documentation:** https://docs.libimobiledevice.org/
 
 ---
 
-## Maintenance
+## 📞 Support
 
-### Updating libimobiledevice
+### Getting Help
 
-Refer to [SETUP_GUIDE.md - Maintenance](SETUP_GUIDE.md#maintenance) section for update procedures.
+1. Check [Troubleshooting Section](hardware/setup-guide.md#troubleshooting)
+2. Review [WiFi Modes Guide](hardware/wifi-modes.md) for network issues
+3. Consult [API Documentation](api/local-api.md) for API errors
+4. Check service logs: `journalctl -u pi-api -n 100`
 
-### Backing Up Your Configuration
+### Common Issues
 
-The important files to backup are:
-- `/etc/udev/rules.d/39-usbmuxd.rules`
-- `/etc/systemd/system/usbmuxd.service.d/override.conf`
-
-These are documented in [CONFIG_FILES.md](CONFIG_FILES.md) for easy restoration.
-
----
-
-## Support
-
-This documentation was created during the setup process on January 19, 2026.
-
-For issues with:
-- **This setup:** Refer to troubleshooting sections in the guides
-- **libimobiledevice bugs:** Report on GitHub
-- **General usage:** Consult the official documentation
+| Issue | Guide | Section |
+|-------|-------|---------|
+| Device not detected | [Setup Guide](hardware/setup-guide.md) | Troubleshooting → Device Not Detected |
+| Permission errors | [Setup Guide](hardware/setup-guide.md) | Troubleshooting → Permission Denied |
+| WiFi connection | [WiFi Guide](hardware/wifi-modes.md) | Troubleshooting |
+| API errors | [API Docs](api/local-api.md) | Error Responses |
+| libplist assertion | [Setup Guide](hardware/setup-guide.md) | Troubleshooting → libplist Assertion |
 
 ---
 
-**Happy iOS device hacking! 📱**
+## 📄 License
+
+This project is MIT licensed. libimobiledevice is licensed under LGPL v2.1.
+
+---
+
+**Last Updated:** January 21, 2026
+
+**Compatible With:**
+- Raspberry Pi OS (64-bit)
+- iOS 12 - iOS 26.2
+- libimobiledevice 1.4.0
+- Node.js 20.x
