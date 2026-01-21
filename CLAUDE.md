@@ -20,10 +20,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 #### For Frontend App (Chromium Kiosk):
 1. ✅ Develop app on laptop (edit HTML/JS/CSS files locally)
-2. ✅ Push to GitHub
-3. ✅ SSH to Pi and pull: `cd ~/raspi-ios-bridge && git pull origin master`
-4. ✅ Pi automatically updates (served by Pi API on port 3000)
-5. ❌ NEVER run `npm install` or build commands on laptop for Pi code
+2. ✅ **CAN TEST ON LAPTOP** - Use Playwright MCP to debug UI directly on laptop
+3. ✅ Open in browser on laptop: `http://localhost:3000/` or use Playwright tools
+4. ✅ Push to GitHub when ready
+5. ✅ SSH to Pi and pull: `cd ~/raspi-ios-bridge && git pull origin master`
+6. ✅ Pi automatically updates (served by Pi API on port 3000)
+
+**Exception:** Frontend apps CAN be tested on laptop because Playwright MCP is available for UI debugging. This is the ONLY exception to the "never run on laptop" rule.
 
 #### SSH Connection Info:
 - **Host:** `192.168.1.137`
