@@ -9,7 +9,7 @@
 <body>
   <div class="flex flex-col h-full">
     <!-- Header -->
-    <header class="glass-card px-5 py-4 border-b border-slate-800">
+    <header class="glass-card px-5 py-3 border-b border-slate-800">
       <div class="flex items-center justify-between">
         <div class="flex items-center gap-3">
           <a href="/" class="w-10 h-10 glass-card rounded-lg flex items-center justify-center text-slate-400 hover:text-cyan-400 btn-touch">
@@ -33,12 +33,12 @@
     <!-- Main Content -->
     <main class="flex-1 flex overflow-hidden">
       <!-- Sidebar -->
-      <aside class="w-72 glass-card border-r border-slate-800 p-5 overflow-y-auto">
-        <div class="mb-6">
-          <h2 class="text-sm font-semibold text-slate-300 mb-3">WiFi Mode</h2>
+      <aside class="w-72 glass-card border-r border-slate-800 p-4 flex flex-col overflow-hidden">
+        <div class="mb-4">
+          <h2 class="text-sm font-semibold text-slate-300 mb-2">WiFi Mode</h2>
 
           <!-- AP Mode Card -->
-          <button onclick="selectMode('ap')" id="apModeBtn" class="w-full glass-card rounded-xl p-4 mb-3 btn-touch text-left border-2 border-transparent hover:border-slate-700 transition-colors">
+          <button onclick="selectMode('ap')" id="apModeBtn" class="w-full glass-card rounded-xl p-3 mb-2 btn-touch text-left border-2 border-transparent hover:border-slate-700 transition-colors">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-cyan-500/10 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -56,7 +56,7 @@
           </button>
 
           <!-- Client Mode Card -->
-          <button onclick="selectMode('client')" id="clientModeBtn" class="w-full glass-card rounded-xl p-4 btn-touch text-left border-2 border-transparent hover:border-slate-700 transition-colors">
+          <button onclick="selectMode('client')" id="clientModeBtn" class="w-full glass-card rounded-xl p-3 btn-touch text-left border-2 border-transparent hover:border-slate-700 transition-colors">
             <div class="flex items-center gap-3 mb-2">
               <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
                 <svg class="w-5 h-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@
 
       <!-- Main Panel -->
       <div class="flex-1 flex flex-col overflow-hidden">
-        <div class="flex-1 p-5 overflow-y-auto" id="mainPanel">
+        <div class="flex-1 p-4 overflow-hidden" id="mainPanel">
           <div class="flex flex-col items-center justify-center h-full text-center">
             <svg class="w-20 h-20 text-slate-700 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"></path>
@@ -147,11 +147,11 @@
 
       if (mode === 'ap') {
         actionsSection.innerHTML = `
-          <div class="border-t border-slate-800 pt-4">
-            <button onclick="activateAPMode()" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg py-3 px-4 font-medium btn-touch transition-colors">
+          <div class="border-t border-slate-800 pt-3 mt-auto">
+            <button onclick="activateAPMode()" class="w-full bg-cyan-500 hover:bg-cyan-600 text-white rounded-lg py-2.5 px-4 font-medium btn-touch transition-colors text-sm">
               Activate AP Mode
             </button>
-            <div class="mt-3 p-3 glass-card rounded-lg">
+            <div class="mt-2 p-2.5 glass-card rounded-lg">
               <div class="text-xs text-slate-400 leading-relaxed">
                 <div class="font-semibold text-slate-300 mb-1">⚠️ Network Change</div>
                 Pi will create hotspot "RaspberryPi-iOS" at 192.168.50.1
@@ -162,9 +162,9 @@
 
         mainPanel.innerHTML = `
           <div class="max-w-md">
-            <h3 class="text-lg font-semibold text-slate-100 mb-4">Access Point Mode</h3>
-            <div class="space-y-3">
-              <div class="glass-card rounded-lg p-4">
+            <h3 class="text-lg font-semibold text-slate-100 mb-3">Access Point Mode</h3>
+            <div class="space-y-2">
+              <div class="glass-card rounded-lg p-3">
                 <div class="flex items-start gap-3">
                   <div class="w-8 h-8 bg-cyan-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -178,7 +178,7 @@
                 </div>
               </div>
 
-              <div class="glass-card rounded-lg p-4">
+              <div class="glass-card rounded-lg p-3">
                 <div class="flex items-start gap-3">
                   <div class="w-8 h-8 bg-cyan-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -192,7 +192,7 @@
                 </div>
               </div>
 
-              <div class="glass-card rounded-lg p-4">
+              <div class="glass-card rounded-lg p-3">
                 <div class="flex items-start gap-3">
                   <div class="w-8 h-8 bg-cyan-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
                     <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -210,8 +210,8 @@
         `;
       } else {
         actionsSection.innerHTML = `
-          <div class="border-t border-slate-800 pt-4">
-            <button onclick="scanNetworks()" id="scanBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-3 px-4 font-medium btn-touch transition-colors">
+          <div class="border-t border-slate-800 pt-3 mt-auto">
+            <button onclick="scanNetworks()" id="scanBtn" class="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-lg py-2.5 px-4 font-medium btn-touch transition-colors text-sm">
               <span class="flex items-center justify-center gap-2">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
@@ -223,9 +223,9 @@
         `;
 
         mainPanel.innerHTML = `
-          <div>
-            <h3 class="text-lg font-semibold text-slate-100 mb-4">Available Networks</h3>
-            <div id="networkList">
+          <div class="h-full flex flex-col">
+            <h3 class="text-lg font-semibold text-slate-100 mb-3">Available Networks</h3>
+            <div id="networkList" class="flex-1 overflow-y-auto">
               <div class="text-center py-12 text-slate-500 text-sm">
                 Click "Scan Networks" to search for WiFi networks
               </div>
@@ -281,9 +281,9 @@
       }
 
       networkList.innerHTML = `
-        <div class="space-y-2">
+        <div class="space-y-2 pr-2">
           ${networks.map(network => `
-            <button onclick='selectNetwork(${JSON.stringify(network.ssid)})' class="w-full glass-card rounded-lg p-4 btn-touch text-left hover:bg-slate-800/50 transition-colors network-item">
+            <button onclick='selectNetwork(${JSON.stringify(network.ssid)})' class="w-full glass-card rounded-lg p-3 btn-touch text-left hover:bg-slate-800/50 transition-colors network-item">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3 flex-1 min-w-0">
                   <div class="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center flex-shrink-0">
