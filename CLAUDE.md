@@ -10,10 +10,12 @@ This is a **documentation repository** for libimobiledevice 1.4.0 setup on Raspb
 
 ## Repository Purpose
 
-- Target Platform: Raspberry Pi Zero 2W (ARM64)
-- OS: Raspberry Pi OS Lite 64-bit (Debian 13 Trixie)
-- libimobiledevice Version: 1.4.0
-- Documentation Date: January 19, 2026
+- Target Platforms: Raspberry Pi Zero 2W / Orange Pi Zero 2W (ARM64)
+- OS: Raspberry Pi OS Lite 64-bit / Armbian 25.11.2 (Debian 12 Bookworm)
+- libimobiledevice Version: 1.4.0-6-gc4f1118 (GitHub master)
+- Documentation Date: January 21, 2026 (Updated)
+
+**⚠️ CRITICAL:** All libimobiledevice components MUST be built from GitHub source. Do NOT use apt packages. See [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md) for detailed installation instructions including the required libplist commit (2c50f76) to avoid assertion failures with modern iOS devices.
 
 ### New: iOS Bridge API System
 
@@ -47,7 +49,7 @@ The Raspberry Pi now includes a **portable iOS device bridge system** that exten
 - **Host:** 192.168.68.69
 - **User:** orangepi
 - **Password:** orangepi
-- **Root Password:** root
+- **Root Password:** orangepi
 - **Hostname:** orangepi
 - **Kernel:** Linux 6.1.43-current-sunxi64 (aarch64)
 - **OS:** Armbian 25.11.2 (Debian 12 Bookworm)
@@ -68,25 +70,88 @@ sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "command"
 
 For root access:
 ```bash
-sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "echo 'root' | sudo -S command"
+sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "echo 'orangepi' | sudo -S command"
 ```
 
-### Verifying libimobiledevice Installation
+### libimobiledevice Installation Status
 
-Check if libimobiledevice is installed and running:
+**✅ INSTALLED** (January 21, 2026) - All components built from GitHub source
+
+**Installed Versions:**
+- libplist: 2.7.0-19-g2c50f76 (specific commit to avoid assertion errors)
+- libimobiledevice-glue: 1.3.2-5-gda770a7
+- libusbmuxd: 2.1.1-2-g93eb168
+- libtatsu: 1.0.5-3-g60a39f3
+- libimobiledevice: 1.4.0-6-gc4f1118
+- usbmuxd daemon: 1.1.1-72-g3ded00c
+
+**Installation Location:** `/usr/local/lib` and `/usr/local/bin`
+
+**Status:**
 ```bash
 sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "ideviceinfo --version"
-# Output: ideviceinfo 1.4.0
+# Output: ideviceinfo 1.4.0-6-gc4f1118
 
 sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "systemctl is-active usbmuxd"
 # Output: active
+
+sshpass -p 'orangepi' ssh orangepi@192.168.68.69 "idevice_id -l"
+# Output: 00008150-000971D00A20401C (when iPhone connected)
 ```
+
+**Testing Results:**
+- ✅ Device detection: Working
+- ✅ Device info retrieval: Working
+- ✅ Date/time sync: Working
+- ✅ Tested with: iOS 26.2 (iPhone 16 Pro)
+
+**Critical Notes:**
+- All apt packages (usbmuxd, libplist3, libusbmuxd6, libimobiledevice6) were removed
+- Must use libplist commit 2c50f76 to avoid assertion failures
+- systemd service configured and enabled on boot
+
+For reinstallation or troubleshooting, see [docs/SETUP_GUIDE.md](docs/SETUP_GUIDE.md).
 
 ### System Resources
 - **Memory:** 4 GB RAM
 - **Storage:** 64 GB SD card
 - **OS:** Armbian 25.11.2 (Debian 12 Bookworm)
 - **Display:** QDTECH MPI7002 7" touchscreen (1024x600)
+
+### System State (Last Updated: January 21, 2026)
+
+**Current Status:** Fresh Armbian installation with optimizations
+
+**Mali GPU:** ✅ Activated
+- Configuration: `/boot/armbianEnv.txt` with `overlays=gpu`
+- DRM devices: card0, card1, renderD128
+- Renderer: Mali-G31 (Panfrost)
+
+**Boot Performance:** ✅ Optimized
+- Boot time: 10.9 seconds (4.3s kernel + 6.6s userspace)
+- Optimized from baseline by disabling unnecessary services
+
+**Disabled Services (for faster boot):**
+- bluetooth.service, aw859a-bluetooth.service (Bluetooth not needed)
+- armbian-zram-config.service (ZRAM swap, 4GB RAM sufficient)
+- armbian-ramlog.service (RAM logging)
+- rsyslog.service (using journald instead)
+- armbian-hardware-monitor.service (not critical)
+- e2scrub_reap.service (filesystem scrubbing)
+- fake-hwclock.service (using systemd-timesyncd)
+- systemd-networkd-wait-online.service (prevents boot delays)
+
+**Disabled Timers:**
+- apt-daily.timer, apt-daily-upgrade.timer (manual updates)
+- e2scrub_all.timer, dpkg-db-backup.timer (not critical)
+
+**Enabled Services (essential only):**
+- ssh.service (remote access)
+- systemd-networkd.service, systemd-resolved.service (networking)
+- systemd-timesyncd.service (time sync)
+- aw859a-wifi.service, wpa_supplicant.service (WiFi)
+- cron.service (scheduled tasks)
+- armbian-hardware-optimize.service, armbian-led-state.service (system optimization)
 
 ### Common Remote Commands
 

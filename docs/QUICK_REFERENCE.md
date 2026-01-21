@@ -1,5 +1,66 @@
 # libimobiledevice Quick Reference Guide
 
+## Installation Quick Reference
+
+### ⚠️ CRITICAL: Build from Source Only
+
+**DO NOT** install from apt. All components MUST be built from GitHub:
+
+```bash
+# Remove apt packages first
+sudo apt-get remove -y usbmuxd libplist3 libusbmuxd6 libimobiledevice6
+
+# Build order:
+# 1. libplist (MUST use commit 2c50f76)
+# 2. libimobiledevice-glue
+# 3. libusbmuxd
+# 4. libtatsu
+# 5. libimobiledevice
+# 6. usbmuxd (daemon)
+```
+
+### Required libplist Commit
+
+**CRITICAL:** Use commit `2c50f76` to avoid assertion failures:
+
+```bash
+cd ~/build/libplist
+git checkout 2c50f76  # REQUIRED - latest commit causes crashes
+./autogen.sh && make && sudo make install && sudo ldconfig
+```
+
+**Why?** Latest commit (c18d6b3) adds strict string length validation that fails with iOS devices.
+
+### Verify Installation
+
+```bash
+# Check versions
+ideviceinfo --version                               # Should show: 1.4.0-6-gc4f1118
+ldd /usr/local/bin/ideviceinfo | grep plist        # Should show: /usr/local/lib/libplist
+
+# Check libplist commit
+cd ~/build/libplist && git log -1 --oneline        # Should show: 2c50f76
+
+# Test with device
+idevice_id -l                                       # Should return UDID
+ideviceinfo -k DeviceName                          # Should return device name
+```
+
+### Troubleshoot Assertion Error
+
+If you see: `plist.c:1329: plist_get_string_val: Assertion failed`
+
+```bash
+# Fix: Rebuild libplist with correct commit
+cd ~/build/libplist
+git checkout 2c50f76
+make clean && ./autogen.sh && make && sudo make install && sudo ldconfig
+sudo systemctl restart usbmuxd
+idevice_id -l  # Should work now
+```
+
+---
+
 ## Most Common Commands
 
 ### Device Detection

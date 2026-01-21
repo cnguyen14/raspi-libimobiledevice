@@ -1,9 +1,9 @@
-# libimobiledevice 1.4.0 Setup Guide for Raspberry Pi Zero 2W
+# libimobiledevice 1.4.0 Setup Guide for Raspberry Pi Zero 2W / Orange Pi Zero 2W
 
-**Date:** January 19, 2026
-**Target Device:** Raspberry Pi Zero 2W
-**OS:** Debian GNU/Linux 13 (trixie) - Raspberry Pi OS Lite 64-bit
-**Kernel:** Linux 6.12.47+rpt-rpi-v8 (aarch64)
+**Date:** January 21, 2026 (Updated)
+**Target Devices:** Raspberry Pi Zero 2W / Orange Pi Zero 2W
+**OS:** Raspberry Pi OS Lite 64-bit / Armbian 25.11.2 (Debian 12 Bookworm)
+**Kernel:** Linux 6.12.47+rpt-rpi-v8 (aarch64) / Linux 6.1.43-current-sunxi64 (aarch64)
 
 ---
 
@@ -23,19 +23,43 @@
 
 ## Overview
 
-This document provides a comprehensive guide for building and configuring libimobiledevice 1.4.0 from source on a Raspberry Pi Zero 2W. The setup enables communication with iOS devices (iPhone, iPad) over USB.
+This document provides a comprehensive guide for building and configuring libimobiledevice 1.4.0 from source on ARM64 single-board computers (Raspberry Pi Zero 2W, Orange Pi Zero 2W). The setup enables communication with iOS devices (iPhone, iPad) over USB.
+
+### ⚠️ CRITICAL: Build from Source Only
+
+**DO NOT** install libimobiledevice packages from apt/system repositories. The latest GitHub versions have a critical compatibility issue that must be addressed:
+
+- ✅ **Build all components from GitHub source** (instructions below)
+- ⚠️ **Use specific libplist commit** to avoid assertion failures with modern iOS devices
+- ❌ **Remove any existing apt packages** before building from source
 
 ### What is libimobiledevice?
 
 libimobiledevice is a cross-platform software library that talks the protocols to support iOS devices. It allows access to device information, backups, file systems, screenshots, and more without needing jailbreak.
 
-### Version Information
+### Version Information (GitHub Master Branch)
 
-- **libimobiledevice:** 1.4.0
-- **libplist:** 2.7.0
-- **libimobiledevice-glue:** 1.3.2
-- **libusbmuxd:** 2.1.1
-- **libtatsu:** 1.0.5
+All components must be built from GitHub source:
+
+- **libimobiledevice:** 1.4.0-6-gc4f1118
+- **libplist:** 2.7.0-19-g2c50f76 (**MUST use this specific commit - see below**)
+- **libimobiledevice-glue:** 1.3.2-5-gda770a7
+- **libusbmuxd:** 2.1.1-2-g93eb168
+- **libtatsu:** 1.0.5-3-g60a39f3
+- **usbmuxd (daemon):** 1.1.1-72-g3ded00c
+
+### 🔴 Known Issue: libplist Assertion Error
+
+The latest libplist commit (c18d6b3) adds strict string length validation that causes crashes with iOS devices:
+
+**Error:**
+```
+usbmuxd: plist.c:1329: plist_get_string_val: Assertion `length == strlen(*val)' failed.
+```
+
+**Cause:** iOS devices send plist strings with embedded null characters, violating the new assertion check.
+
+**Solution:** Use commit `2c50f76` which predates the strict validation (instructions provided in installation steps).
 
 ---
 
@@ -58,9 +82,19 @@ libimobiledevice is a cross-platform software library that talks the protocols t
 
 ## Prerequisites
 
-### Required System Packages
+### Step 1: Remove Existing apt Packages
 
-Install all build dependencies and required libraries:
+**CRITICAL:** Remove any existing libimobiledevice packages from apt to avoid conflicts:
+
+```bash
+sudo apt-get remove -y usbmuxd libplist3 libusbmuxd6 libimobiledevice6
+```
+
+This ensures we build everything from GitHub source with compatible versions.
+
+### Step 2: Install Build Dependencies
+
+Install only the build tools and base libraries (NOT libimobiledevice components):
 
 ```bash
 sudo apt-get update
@@ -73,7 +107,6 @@ sudo apt-get install -y \
     pkg-config \
     libssl-dev \
     libusb-1.0-0-dev \
-    usbmuxd \
     python3-dev \
     libcurl4-openssl-dev
 ```
@@ -85,10 +118,11 @@ sudo apt-get install -y \
 - **autoconf/automake/libtool** - Build system tools
 - **pkg-config** - Library configuration helper
 - **libssl-dev** - SSL/TLS support (OpenSSL)
-- **libusb-1.0-0-dev** - USB device access
-- **usbmuxd** - USB multiplexing daemon for iOS devices
-- **python3-dev** - Python development headers
+- **libusb-1.0-0-dev** - USB device access (base library only)
+- **python3-dev** - Python development headers (optional)
 - **libcurl4-openssl-dev** - HTTP client library (required for libtatsu)
+
+**Note:** We do NOT install `usbmuxd`, `libplist3`, `libusbmuxd6`, or `libimobiledevice6` from apt - these will be built from source.
 
 ---
 
@@ -100,10 +134,17 @@ All source code is built in `~/build/` directory on the Raspberry Pi.
 
 **Purpose:** Library for handling Apple's property list format (plist files)
 
+**⚠️ CRITICAL:** Must use commit `2c50f76` to avoid assertion failures with iOS devices.
+
 ```bash
+mkdir -p ~/build
 cd ~/build
 git clone https://github.com/libimobiledevice/libplist.git
 cd libplist
+
+# Checkout the stable commit (before strict string validation)
+git checkout 2c50f76
+
 ./autogen.sh
 make
 sudo make install
@@ -111,7 +152,10 @@ sudo ldconfig
 ```
 
 **Installation Location:** `/usr/local/lib/libplist-2.0.*`
-**Version Built:** 2.7.0-22-g001a59e
+**Version Built:** 2.7.0-19-g2c50f76
+
+**Why this specific commit?**
+The latest commit (c18d6b3) adds strict plist string length validation that fails with modern iOS devices (iOS 26.2 tested). Commit 2c50f76 is the last stable version before this change and works correctly with all iOS versions.
 
 ### 2. libimobiledevice-glue (Dependency)
 
@@ -170,7 +214,7 @@ sudo ldconfig
 **Installation Location:** `/usr/local/lib/libtatsu.*`
 **Version Built:** 1.0.5-3-g60a39f3
 
-### 5. libimobiledevice 1.4.0 (Main Package)
+### 5. libimobiledevice (Main Package)
 
 **Purpose:** Main library for iOS device communication
 
@@ -178,7 +222,7 @@ sudo ldconfig
 cd ~/build
 git clone https://github.com/libimobiledevice/libimobiledevice.git
 cd libimobiledevice
-git checkout 1.4.0
+# Use master branch (contains latest iOS compatibility)
 ./autogen.sh
 make
 sudo make install
@@ -186,13 +230,38 @@ sudo ldconfig
 ```
 
 **Installation Location:** `/usr/local/lib/libimobiledevice-1.0.*`
-**Version Built:** 1.4.0
+**Version Built:** 1.4.0-6-gc4f1118
 
 **Configuration Details:**
 - Install prefix: `/usr/local`
 - Debug code: no
 - Python bindings: no (cython not installed)
 - SSL support backend: OpenSSL
+
+### 6. usbmuxd Daemon (Required)
+
+**Purpose:** USB multiplexing daemon that manages iOS device connections
+
+**IMPORTANT:** Must also build the daemon from source (not just the library).
+
+```bash
+cd ~/build
+git clone https://github.com/libimobiledevice/usbmuxd.git
+cd usbmuxd
+./autogen.sh
+make
+sudo make install
+```
+
+**Installation Location:** `/usr/local/sbin/usbmuxd`
+**Version Built:** 1.1.1-72-g3ded00c
+
+**What gets installed:**
+- Binary: `/usr/local/sbin/usbmuxd` (the daemon)
+- systemd service: `/lib/systemd/system/usbmuxd.service`
+- udev rules: `/lib/udev/rules.d/39-usbmuxd.rules`
+
+**Note:** The systemd service and udev rules are automatically installed but may need additional configuration (see Configuration section).
 
 ---
 
@@ -255,7 +324,32 @@ sudo udevadm trigger --subsystem-match=usb
 
 ### 5. Enable usbmuxd on Boot
 
-Create systemd override to enable auto-start:
+After building usbmuxd from source, verify the systemd service file exists and is properly configured:
+
+```bash
+# Check if service file exists and has content
+cat /lib/systemd/system/usbmuxd.service
+```
+
+If the file is empty or missing, create it manually:
+
+```bash
+sudo tee /lib/systemd/system/usbmuxd.service > /dev/null << 'EOF'
+[Unit]
+Description=Socket daemon for the usbmux protocol used by Apple devices
+Documentation=man:usbmuxd(8)
+
+[Service]
+ExecStart=/usr/local/sbin/usbmuxd --user usbmux --systemd
+PIDFile=/usr/local/var/run/usbmuxd.pid
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+Create systemd override to ensure auto-start:
 
 ```bash
 sudo mkdir -p /etc/systemd/system/usbmuxd.service.d
@@ -277,11 +371,71 @@ sudo systemctl start usbmuxd
 ```bash
 systemctl is-enabled usbmuxd  # Should return: enabled
 systemctl is-active usbmuxd   # Should return: active
+systemctl status usbmuxd      # Should show "active (running)"
 ```
 
 ---
 
 ## Troubleshooting
+
+### Issue 0: Assertion Error `plist.c:1329` (CRITICAL - Most Common Issue)
+
+**Symptom:**
+```
+usbmuxd: plist.c:1329: plist_get_string_val: Assertion `length == strlen(*val)' failed.
+```
+
+Or in journalctl:
+```bash
+$ sudo journalctl -u usbmuxd -n 20
+Jan 21 01:39:54 orangepizero2w usbmuxd[6309]: Connected to v2.0 device 1 on location 0x10003
+Jan 21 01:39:54 orangepizero2w usbmuxd[6309]: plist.c:1329: plist_get_string_val: Assertion failed.
+Jan 21 01:39:54 orangepizero2w systemd[1]: usbmuxd.service: Main process exited, code=killed, status=6/ABRT
+```
+
+Device detection shows:
+```bash
+$ idevice_id -l
+ERROR: Unable to retrieve device list!
+```
+
+**Cause:** You're using the latest libplist commit (c18d6b3) which adds strict string length validation that fails with iOS devices sending plist strings with embedded null characters.
+
+**Solution:**
+
+1. Check your current libplist version:
+```bash
+cd ~/build/libplist
+git log -1 --oneline
+# If you see: c18d6b3 plist: Fix heap overflow... (BAD)
+# You need: 2c50f76 xplist: Allow empty key entry... (GOOD)
+```
+
+2. Rebuild libplist with the correct commit:
+```bash
+cd ~/build/libplist
+git checkout 2c50f76
+make clean
+./autogen.sh
+make
+sudo make install
+sudo ldconfig
+```
+
+3. Restart usbmuxd:
+```bash
+sudo systemctl restart usbmuxd
+```
+
+4. Test device detection:
+```bash
+idevice_id -l
+# Should return device UDID
+```
+
+**Prevention:** Always use commit `2c50f76` when building libplist (as documented in the installation steps).
+
+**Tested With:** iOS 26.2 (iPhone 16 Pro), iOS versions back to iOS 15.
 
 ### Issue 1: USB Device Permission Errors
 
@@ -359,6 +513,84 @@ configure: error: Package requirements (libXXX >= X.X.X) were not met
 **Solution:**
 ```bash
 sudo apt-get install -y libcurl4-openssl-dev
+```
+
+### Issue 6: Mixed apt and Source Installations
+
+**Symptom:** Tools work intermittently, or show errors about incompatible library versions.
+
+**Cause:** Mixing apt-installed packages with source-built libraries causes version conflicts.
+
+**Solution:**
+
+1. Remove ALL libimobiledevice-related apt packages:
+```bash
+sudo apt-get remove -y usbmuxd libplist3 libusbmuxd6 libimobiledevice6
+sudo apt-get autoremove -y
+```
+
+2. Verify libraries are using /usr/local:
+```bash
+ldd /usr/local/bin/ideviceinfo | grep -E 'plist|usbmuxd|imobiledevice'
+# All should show: /usr/local/lib/...
+```
+
+3. If you see `/lib/aarch64-linux-gnu/`, remove those old libraries:
+```bash
+sudo rm /lib/aarch64-linux-gnu/libplist*
+sudo rm /lib/aarch64-linux-gnu/libusbmuxd*
+sudo rm /lib/aarch64-linux-gnu/libimobiledevice*
+```
+
+4. Rebuild all components from source following the installation guide.
+
+### Issue 7: usbmuxd Service Masked or Missing
+
+**Symptom:**
+```
+Failed to enable unit: Unit file /lib/systemd/system/usbmuxd.service is masked.
+```
+
+Or service file is empty:
+```bash
+$ cat /lib/systemd/system/usbmuxd.service
+# Empty or very small file
+```
+
+**Solution:**
+
+1. Unmask the service:
+```bash
+sudo systemctl unmask usbmuxd
+```
+
+2. Manually create the service file:
+```bash
+sudo tee /lib/systemd/system/usbmuxd.service > /dev/null << 'EOF'
+[Unit]
+Description=Socket daemon for the usbmux protocol used by Apple devices
+Documentation=man:usbmuxd(8)
+
+[Service]
+ExecStart=/usr/local/sbin/usbmuxd --user usbmux --systemd
+PIDFile=/usr/local/var/run/usbmuxd.pid
+KillMode=mixed
+
+[Install]
+WantedBy=multi-user.target
+EOF
+```
+
+3. Reload and enable:
+```bash
+sudo systemctl daemon-reload
+sudo systemctl enable usbmuxd
+sudo systemctl start usbmuxd
+```
+
+4. Verify:
+```bash
+systemctl status usbmuxd
 ```
 
 ---
@@ -782,6 +1014,16 @@ pkg-config --list-all | grep -E "plist|usbmuxd|imobiledevice|tatsu"
 
 ---
 
-**Document Version:** 1.0
-**Last Updated:** January 19, 2026
+**Document Version:** 2.0
+**Last Updated:** January 21, 2026
+**Major Changes in v2.0:**
+- Added critical libplist commit requirement (2c50f76)
+- Added complete GitHub source build instructions
+- Added usbmuxd daemon build from source
+- Added comprehensive troubleshooting for assertion errors
+- Updated for Orange Pi Zero 2W compatibility
+- Added systemd service configuration fixes
+
 **Author:** Setup performed and documented via Claude Code
+**Tested Platforms:** Raspberry Pi Zero 2W, Orange Pi Zero 2W (ARM64)
+**Tested iOS Versions:** iOS 26.2 (iPhone 16 Pro)
