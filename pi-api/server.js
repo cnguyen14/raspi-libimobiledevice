@@ -52,19 +52,24 @@ app.use('/api/wifi', wifiRoutes);
 // Serve static files (kiosk app from Vite build)
 app.use(express.static(path.join(__dirname, '../kiosk-app/dist')));
 
-// Root endpoint
+// Root endpoint - serve index.html for kiosk, JSON for API requests
 app.get('/', (req, res) => {
-  res.json({
-    name: 'Raspberry Pi iOS Bridge API',
-    version: '1.0.0',
-    endpoints: {
-      device: '/api/device/info',
-      battery: '/api/battery',
-      screenshot: '/api/screenshot',
-      syslog: '/api/syslog',
-      sync: '/api/sync'
-    }
-  });
+  // If request wants JSON (API client), return JSON
+  if (req.headers.accept && req.headers.accept.includes('application/json')) {
+    return res.json({
+      name: 'Raspberry Pi iOS Bridge API',
+      version: '1.0.0',
+      endpoints: {
+        device: '/api/device/info',
+        battery: '/api/battery',
+        screenshot: '/api/screenshot',
+        syslog: '/api/syslog',
+        sync: '/api/sync'
+      }
+    });
+  }
+  // Otherwise serve the kiosk app
+  res.sendFile(path.join(__dirname, '../kiosk-app/dist/index.html'));
 });
 
 // 404 handler
